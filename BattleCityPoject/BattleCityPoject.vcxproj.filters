@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="WAV">
+      <UniqueIdentifier>{0f7d403d-e392-4e75-a084-ebbb3b147730}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BMP">
+      <UniqueIdentifier>{a24a7554-f4e5-4ddc-8944-66492fab88e1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Tank.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseTank.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Bullet.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Fire.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MD5.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BaseTank.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Fire.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tank.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MD5.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="database.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="socket.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="BattleCityPoject.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="tank.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="rc\bullet.bmp">
+      <Filter>BMP</Filter>
+    </Image>
+    <Image Include="rc\background.bmp">
+      <Filter>BMP</Filter>
+    </Image>
+    <Image Include="rc\Client.bmp">
+      <Filter>BMP</Filter>
+    </Image>
+    <Image Include="rc\fire.bmp">
+      <Filter>BMP</Filter>
+    </Image>
+    <Image Include="rc\login.bmp">
+      <Filter>BMP</Filter>
+    </Image>
+    <Image Include="..\Release\MakePeople.bmp">
+      <Filter>BMP</Filter>
+    </Image>
+    <Image Include="rc\map_block.bmp">
+      <Filter>BMP</Filter>
+    </Image>
+    <Image Include="rc\player_tank.bmp">
+      <Filter>BMP</Filter>
+    </Image>
+    <Image Include="rc\Quit.bmp">
+      <Filter>BMP</Filter>
+    </Image>
+    <Image Include="rc\Service.bmp">
+      <Filter>BMP</Filter>
+    </Image>
+    <Image Include="rc\WebSite.bmp">
+      <Filter>BMP</Filter>
+    </Image>
+    <Image Include="rc\tank.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="rc\MakePeople.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="rc\bitmap1.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="rc\single.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="rc\goon.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="rc\newgame.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="rc\Multi.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="rc\createroom.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="rc\joinroom.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="rc\start.wav">
+      <Filter>WAV</Filter>
+    </Media>
+    <Media Include="rc\death.wav">
+      <Filter>WAV</Filter>
+    </Media>
+    <Media Include="rc\hit.wav">
+      <Filter>WAV</Filter>
+    </Media>
+    <Media Include="rc\LOGIN.wav">
+      <Filter>WAV</Filter>
+    </Media>
+    <Media Include="rc\motor.wav">
+      <Filter>WAV</Filter>
+    </Media>
+    <Media Include="rc\shoot.wav">
+      <Filter>WAV</Filter>
+    </Media>
+    <Media Include="rc\turret.wav">
+      <Filter>WAV</Filter>
+    </Media>
+  </ItemGroup>
+</Project>
