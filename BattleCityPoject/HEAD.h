@@ -143,7 +143,7 @@ HWND hButton_Goon = NULL;
 HWND hButton_Newgame = NULL;
 HWND hButton_Createroom = NULL;
 HWND hButton_Joinroon = NULL;
-int cLientORServer = 0;//1代表服务器，2代表客户端
+int clientORserver = 0;//1代表服务器，2代表客户端
 
 LPCTSTR str_password = _T("密码：");
 LPCTSTR str_username = _T("账号：");

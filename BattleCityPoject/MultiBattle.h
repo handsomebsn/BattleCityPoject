@@ -1,12 +1,14 @@
 #pragma once
 #ifndef __MultiBattle__
 #include"HEAD.h"
+send_info Player_B;
 //游戏开始
 void Start_2()
 {
 	SetTimer(hwnd, GAME_ID, GAME_TIME, NULL);
 	player_tank = BaseTank(20 / 10 - 1, 20, 0, UP, 5 * 64, 10 * 64 + 64, UP, false, 16, 4, 8, 2, 1, 10, 8);
 	game_state = GAME;
+	memset(&Player_B, 0, sizeof(Player_B));//清空结构体
 	if (start_flag == true) {
 		Init_2();
 	}
@@ -19,42 +21,26 @@ void Init_2()
 	//BOSS模式
 	boss_mode = false;
 	//玩家坦克
-	if (cLientORServer == 1) {
+
+	if (clientORserver == 1) {
 		player_tank = BaseTank(
-			player_tank.id,
-			player_tank.life,
-			player_tank.armor,
-			UP,
-			5 * 64,
-			10 * 64 + 64,
-			UP,
+			player_tank.id,	player_tank.life,player_tank.armor,
+			UP,	5 * 64,	10 * 64 + 64,UP,
 			player_tank.gun_lock,
-			64 / player_tank.speed,
-			player_tank.speed,
+			64 / player_tank.speed,	player_tank.speed,
 			player_tank.fire_speed,
-			player_tank.bullet_id,
-			player_tank.bullet_max,
-			player_tank.bullet_power,
-			player_tank.bullet_speed);
-	}
-	else if(cLientORServer==2)
+			player_tank.bullet_id, player_tank.bullet_max,
+			player_tank.bullet_power, player_tank.bullet_speed);
+	}else if(clientORserver==2)
 	{
 		player_tank = BaseTank(
-			player_tank.id,
-			player_tank.life,
-			player_tank.armor,
-			DOWN,
-			9 * 64,
-			-1 * 64 + 0,
-			DOWN,
+			player_tank.id,	player_tank.life, player_tank.armor,
+			DOWN, 9 * 64, -1 * 64 + 0,	DOWN,
 			player_tank.gun_lock,
-			64 / player_tank.speed,
-			player_tank.speed,
+			64 / player_tank.speed,	player_tank.speed,
 			player_tank.fire_speed,
-			player_tank.bullet_id,
-			player_tank.bullet_max,
-			player_tank.bullet_power,
-			player_tank.bullet_speed);
+			player_tank.bullet_id,	player_tank.bullet_max,
+			player_tank.bullet_power, player_tank.bullet_speed);
 	}
 	//以下为动态资源的释放
 	//玩家子弹清空
@@ -138,7 +124,10 @@ void Game_2()
 		{
 			++enemy_num;
 			--enemy_rest;
-			enemy_tank.push_back(new BaseTank(GOLD, 20, 0, DOWN, 0, -64, DOWN, false, 16, 4, 8, 2, 1, 10, 8));
+			if(clientORserver==1)
+			enemy_tank.push_back(new BaseTank(GOLD, 20, 0, DOWN, 9 * 64, -1 * 64 + 0, DOWN, false, 16, 4, 8, 2, 1, 10, 8));
+			else if(clientORserver==2)
+			enemy_tank.push_back(new BaseTank(GOLD, 20, 0, UP, 5 * 64, 10 * 64 + 64,UP, false, 16, 4, 8, 2, 1, 10, 8));
 			//添加子弹容器
 			enemy_bullet.push_back(new list<Bullet*>);
 			//刷新剩余量绘图

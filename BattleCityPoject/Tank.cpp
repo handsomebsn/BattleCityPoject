@@ -396,11 +396,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hButton_Multi);
 			DestroyWindow(hButton_Createroom);
 			DestroyWindow(hButton_Joinroon);
-			cLientORServer = 1;
+			clientORserver = 1;
 			Start_Server();
-		//	start_flag = true;
-		//	MapInit();
-		//	Start_2();
+			start_flag = true;
+			MapInit();
+			Start_2();
 			
 
 		}
@@ -413,11 +413,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hButton_Multi);
 			DestroyWindow(hButton_Createroom);
 			DestroyWindow(hButton_Joinroon);
-			cLientORServer = 2;
+			clientORserver = 2;
 			Start_Client();
-		//	start_flag = true;
-		//	MapInit();
-		//	Start_2();
+			start_flag = true;
+			MapInit();
+			Start_2();
 			
 		}
 		break;
@@ -552,7 +552,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				switch (game_state)
 				{
 				case GAME:
-					if (cLientORServer == 0)
+					if (clientORserver == 0)
 						Game();
 					else
 						Game_2();
@@ -738,7 +738,7 @@ void Game()
 	if (player_death == false)
 		Key();
 	//绘制游戏画面，区别对待单人和多人游戏
-	if (cLientORServer == 0)
+	if (clientORserver == 0)
 		DrawGame();
 	else
 		DrawGame_2();
@@ -1737,7 +1737,7 @@ void LoadMap(){
 }
 //全地图初始化
 void MapInit(){
-	if (cLientORServer == 0) {
+	if (clientORserver == 0) {
 		blockmap.assign(map, map + block_wide*block_high*map_max);
 	}
 	else {

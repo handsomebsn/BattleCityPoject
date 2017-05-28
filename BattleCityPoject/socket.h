@@ -10,7 +10,10 @@ using namespace std;
 typedef struct send_info
 {
 	int length; //发送的消息主体的长度
-	char face[255]; //消息主体
+	//char face[255]; //消息主体
+	int face; //朝向
+	int x;//坐标
+	int y;
 }send_info;
 
 int Start_Client()
@@ -51,7 +54,7 @@ int Start_Client()
 		return -1;
 	}
 	else{
-		MessageBoxA(NULL, "connect successfull!", "", MB_OK);
+		MessageBoxA(NULL, "进入房间", "", MB_OK);
 	}
 		
 
@@ -59,8 +62,9 @@ int Start_Client()
 		char send_buf[BUF_SIZE] ;
 		send_info info; //(1)定义结构体变量
 		memset(&info, 0, sizeof(info));//清空结构体
-		memcpy(info.face,"DOWN",sizeof("DOWN"));
-		info.length = strlen(info.face);
+		//memcpy(info.face,DOWN,sizeof(DOWN));
+		//info.length = strlen(info.face);
+		info.face = DOWN;
 		memset(send_buf, 0, BUF_SIZE);//清空缓存，不清空的话可能导致接收时产生乱码，
 		memcpy(send_buf, &info, sizeof(info)); //(3)结构体转换成字符串
 		retVal=send(sHost, send_buf, sizeof(send_buf), 0);//(4)发送信息	
@@ -121,7 +125,7 @@ int Start_Server() {
 	//接受客户端请求  
 	sockaddr_in addrClient;
 	int addrClientlen = sizeof(addrClient);
-	MessageBoxA(NULL, "等待连接", "", MB_OK);
+	MessageBoxA(NULL, "等待玩家加入ing", "", MB_OK);
 	sClient = accept(sServer, (sockaddr FAR*)&addrClient, &addrClientlen);
 	if (INVALID_SOCKET == sClient)
 	{
@@ -132,7 +136,7 @@ int Start_Server() {
 	}
 	else
 	{
-		MessageBoxA(NULL, "接收到新连接", "", MB_OK);
+		MessageBoxA(NULL, "有玩家加入", "", MB_OK);
 	}
 		//接收客户端数据  
 		char recv_buf[BUF_SIZE] ;
@@ -141,10 +145,13 @@ int Start_Server() {
 		retVal = recv(sClient, recv_buf, BUF_SIZE, 0);//(2)读取数据
 		memset(&info, 0, sizeof(info));//清空结构体
 		memcpy(&info, recv_buf, sizeof(info));//(3)把接收到的信息转换成结构体
-		info.face[info.length] = '\0';
+	//	info.face[info.length] = '\0';
 		//消息内容结束，没有这句的话，可能导致消息乱码或输出异常
-		if (info.face) //判断接收内容并输出
-			MessageBoxA(NULL, info.face, "", MB_OK);
+		switch (info.face) //判断接收内容并输出
+		{
+		case DOWN://MessageBoxA(NULL, "DOWN", "", MB_OK);
+			break;		
+		}
 		//至此，结构体的发送与接收已经顺利结束了
 
 	//退出  
