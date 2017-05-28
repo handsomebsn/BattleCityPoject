@@ -554,8 +554,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				case GAME:
 					if (clientORserver == 0)
 						Game();
-					else
+					else{
 						Game_2();
+					}
 					break;
 				case EDIT:
 					Edit();
@@ -713,6 +714,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 		//销毁窗口
 	case WM_DESTROY:
+		//退出  
+		closesocket(sServer);   //关闭套接字  
+		closesocket(sClient);   //关闭套接字  
+		closesocket(sHost); //关闭套接字  
+		WSACleanup();           //释放套接字资源; 		
 		PostQuitMessage(0);
 		break;
 	}
@@ -833,18 +839,22 @@ void Key()
 		if (KEYDOWN(VK_DOWN)){
 			player_tank.Change(DOWN);
 			player_tank.move = 64 / player_tank.speed;
+			if(clientORserver)Send_Client(DOWN);//TCP发送消息
 		}
 		else if (KEYDOWN(VK_LEFT))	{
 			player_tank.Change(LEFT);
 			player_tank.move = 64 / player_tank.speed;
+			if(clientORserver)Send_Client(LEFT);
 		}
 		else if (KEYDOWN(VK_UP))	{
 			player_tank.Change(UP);
 			player_tank.move = 64 / player_tank.speed;
+			if(clientORserver)Send_Client(UP);
 		}
 		else if (KEYDOWN(VK_RIGHT))	{
 			player_tank.Change(RIGHT);
 			player_tank.move = 64 / player_tank.speed;
+			if(clientORserver)Send_Client(RIGHT);
 		}
 		if (player_tank.move > 0)
 		{
@@ -1744,4 +1754,3 @@ void MapInit(){
 		blockmap.assign(map_2, map_2 + block_wide*block_high*map_max_2);
 	}
 }
-

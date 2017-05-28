@@ -1,7 +1,6 @@
 #pragma once
 #ifndef __MultiBattle__
 #include"HEAD.h"
-send_info Player_B;
 //游戏开始
 void Start_2()
 {
@@ -83,10 +82,13 @@ void Init_2()
 	item = NONE;
 	invin_time = 0;
 	LoadMap();
+	//MessageBoxA(NULL, "调试", "", MB_OK);
 }
 //游戏过程
 void Game_2()
 {
+	if(clientORserver==1)Receive_Server();
+	if(clientORserver==2)Receive_Client();
 	//玩家操作按键响应
 	if (player_death == false)
 		Key();
@@ -209,7 +211,8 @@ void EnemyTank_2()
 		}
 		if (t.move == 0 && t.delay == 0)
 		{
-			
+			t.Change(Player_B.face);//转换方向
+			t.move = 64 / t.speed;
 			//撞到砖块
 			if (TankHitBlock(t) == true)
 			{

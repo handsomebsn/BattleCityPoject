@@ -125,3 +125,13 @@ void LoadMap();
 //全地图初始化
 void MapInit();
 
+
+//TCP通信
+//服务器端接收数据
+void Receive_Server();
+//客户端接收数据
+void Receive_Client();
+//服务器端发送数据
+void Send_Server();
+//客户端发送数据
+void Send_Client(int face);
