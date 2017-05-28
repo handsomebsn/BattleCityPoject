@@ -29,22 +29,43 @@ void Init_2()
 	//BOSS模式
 	boss_mode = false;
 	//玩家坦克
-	player_tank = BaseTank(
-		player_tank.id,
-		player_tank.life,
-		player_tank.armor,
-		UP,
-		5 * 64,
-		10 * 64 + 64,
-		UP,
-		player_tank.gun_lock,
-		64 / player_tank.speed,
-		player_tank.speed,
-		player_tank.fire_speed,
-		player_tank.bullet_id,
-		player_tank.bullet_max,
-		player_tank.bullet_power,
-		player_tank.bullet_speed);
+	if (cLientORServer == 1) {
+		player_tank = BaseTank(
+			player_tank.id,
+			player_tank.life,
+			player_tank.armor,
+			UP,
+			5 * 64,
+			10 * 64 + 64,
+			UP,
+			player_tank.gun_lock,
+			64 / player_tank.speed,
+			player_tank.speed,
+			player_tank.fire_speed,
+			player_tank.bullet_id,
+			player_tank.bullet_max,
+			player_tank.bullet_power,
+			player_tank.bullet_speed);
+	}
+	else if(cLientORServer==2)
+	{
+		player_tank = BaseTank(
+			player_tank.id,
+			player_tank.life,
+			player_tank.armor,
+			DOWN,
+			9 * 64,
+			-1 * 64 + 0,
+			DOWN,
+			player_tank.gun_lock,
+			64 / player_tank.speed,
+			player_tank.speed,
+			player_tank.fire_speed,
+			player_tank.bullet_id,
+			player_tank.bullet_max,
+			player_tank.bullet_power,
+			player_tank.bullet_speed);
+	}
 	//以下为动态资源的释放
 	//玩家子弹清空
 	for (list<Bullet*>::iterator i = player_bullet.begin(); i != player_bullet.end(); ++i)

@@ -34,26 +34,26 @@ public:
 	void Death();
 	void Draw(HDC &,HDC &,bool);
 
-	int id;
-	int life;
-	int armor;
-	int face;
-	int x;
+	int id;//坦克种类
+	int life;//生命
+	int armor;//防御
+	int face;//朝向
+	int x;//出生坐标
 	int y;
 	int gun_face;
 	bool gun_lock;
 	int gun_step;
-	int move;
-	int move_step;
-	int speed;
-	int speed_real;
-	int fire_step;
-	int fire_speed;
-	int bullet_id;
-	int bullet_num;
+	int move;//移动
+	int move_step;//移动状态
+	int speed;//速度
+	int speed_real;//实时速度
+	int fire_step;//火花状态
+	int fire_speed;//火花速度
+	int bullet_id;//炮弹种类
+	int bullet_num;//炮弹数量
 	int bullet_max;
-	int bullet_power;
-	int bullet_speed;
+	int bullet_power;//炮弹攻击力
+	int bullet_speed;//炮弹速度
 	int delay;
 };
 

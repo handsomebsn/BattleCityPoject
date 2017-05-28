@@ -413,6 +413,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hButton_Createroom);
 			DestroyWindow(hButton_Joinroon);
 			cLientORServer = 2;
+			start_flag = true;
+			MapInit();
+			Start_2();
 		//	Start_Client();
 		}
 		break;
@@ -558,7 +561,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					break;
 				case GAMEOVER:
 					MessageBox(hwnd, L"游戏结束！再接再厉！", L"", MB_OK);
-					Start();
 					break;
 				case NEXTSTAGE:
 					if (++stage == stage_max)
