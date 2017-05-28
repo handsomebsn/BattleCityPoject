@@ -155,8 +155,6 @@ int Start_Server() {
 		MessageBoxA(NULL, buf, "", MB_OK);
 		char sendBuf[BUF_SIZE] = "这里是服务器";
 		send(sClient, sendBuf, strlen(sendBuf), 0);
-	
-
 
 	//退出  
 	closesocket(sServer);   //关闭套接字  
