@@ -550,7 +550,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				switch (game_state)
 				{
 				case GAME:
-					Game();
+					if (cLientORServer == 0)
+						Game();
+					else
+						Game_2();
 					break;
 				case EDIT:
 					Edit();
@@ -561,6 +564,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					break;
 				case GAMEOVER:
 					MessageBox(hwnd, L"游戏结束！再接再厉！", L"", MB_OK);
+					PostQuitMessage(0);
 					break;
 				case NEXTSTAGE:
 					if (++stage == stage_max)
@@ -992,8 +996,6 @@ void Init()
 		mysql_query(&mysql, buffer);
 	}
 	mysql_close(&mysql);
-
-
 	//BOSS模式
 	boss_mode = false;
 	//玩家坦克

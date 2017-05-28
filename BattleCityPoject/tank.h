@@ -109,6 +109,7 @@ bool TankHitTank(BaseTank&,BaseTank&);
 bool BulletHitBullet(Bullet&,Bullet&);
 //处理和画敌人坦克
 void EnemyTank();
+void EnemyTank_2();
 //处理和画敌人子弹
 void EnemyBullet();
 //处理和画道具
