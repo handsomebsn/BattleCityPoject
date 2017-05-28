@@ -397,10 +397,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hButton_Createroom);
 			DestroyWindow(hButton_Joinroon);
 			cLientORServer = 1;
-			start_flag = true;
-			MapInit();
-			Start_2();
-		//	Start_Server();
+			Start_Server();
+		//	start_flag = true;
+		//	MapInit();
+		//	Start_2();
+			
 
 		}
 		//按钮--多人加入房间事件
@@ -413,10 +414,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hButton_Createroom);
 			DestroyWindow(hButton_Joinroon);
 			cLientORServer = 2;
-			start_flag = true;
-			MapInit();
-			Start_2();
-		//	Start_Client();
+			Start_Client();
+		//	start_flag = true;
+		//	MapInit();
+		//	Start_2();
+			
 		}
 		break;
 

@@ -1,23 +1,24 @@
 #pragma once
 // Net.cpp : 定义控制台应用程序的入口点。
 //
-#ifndef _SOCKET_
+#ifndef __SOCKET__
 //#include "winsock2.h"  
 #include <iostream>  
 #pragma comment(lib, "ws2_32.lib")  
-
+#define BUF_SIZE  1024
 using namespace std;
-BOOL RecvLine(SOCKET s, char* buf); //读取一行数据  
+typedef struct send_info
+{
+	int length; //发送的消息主体的长度
+	char face[255]; //消息主体
+}send_info;
 
 int Start_Client()
 {
-	const int BUF_SIZE = 255;
-
 	WSADATA wsd; //WSADATA变量  
 	SOCKET sHost; //服务器套接字  
 	SOCKADDR_IN servAddr; //服务器地址  
-	//char buf[BUF_SIZE]; //接收数据缓冲区  
-	char bufRecv[BUF_SIZE];
+	char recv_buf[BUF_SIZE];
 	int retVal; //返回值  
 	//初始化套结字动态库  
 	if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)
@@ -49,39 +50,33 @@ int Start_Client()
 		WSACleanup(); //释放套接字资源  
 		return -1;
 	}
-	else
-	{
+	else{
 		MessageBoxA(NULL, "connect successfull!", "", MB_OK);
 	}
-	
-		//向服务器发送数据  
-		//ZeroMemory(buf, BUF_SIZE);
-		char buf[BUF_SIZE] = "这里是客户端";
-		retVal = send(sHost, buf, strlen(buf), 0);
-	    /*if (SOCKET_ERROR == retVal)
-		{
-			cout << "send failed!" << endl;
-			closesocket(sHost); //关闭套接字  
-			WSACleanup(); //释放套接字资源  
-			return -1;
-		}*/
-		//从服务器接收数据
-		ZeroMemory(bufRecv, BUF_SIZE);		
-		recv(sHost, bufRecv, BUF_SIZE, 0); // 接收服务器端的数据， 只接收5个字符
-		MessageBoxA(NULL, bufRecv, "", MB_OK);		
+		
+
+		//发送数据
+		char send_buf[BUF_SIZE] ;
+		send_info info; //(1)定义结构体变量
+		memset(&info, 0, sizeof(info));//清空结构体
+		memcpy(info.face,"DOWN",sizeof("DOWN"));
+		info.length = strlen(info.face);
+		memset(send_buf, 0, BUF_SIZE);//清空缓存，不清空的话可能导致接收时产生乱码，
+		memcpy(send_buf, &info, sizeof(info)); //(3)结构体转换成字符串
+		retVal=send(sHost, send_buf, sizeof(send_buf), 0);//(4)发送信息	
+		
 	
 	//退出  
 	closesocket(sHost); //关闭套接字  
 	WSACleanup(); //释放套接字资源  
+	return 0;
 }
 int Start_Server() {
-	const int BUF_SIZE = 255;
+
 	WSADATA         wsd;            //WSADATA变量  
 	SOCKET          sServer;        //服务器套接字  
 	SOCKET          sClient;        //客户端套接字  
 	SOCKADDR_IN     addrServ;;      //服务器地址  
-	char            buf[BUF_SIZE];  //接收数据缓冲区  
-//	char            sendBuf[BUF_SIZE];//返回给客户端得数据  
 	int             retVal;         //返回值  
 	//初始化套结字动态库  
 	if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)
@@ -139,22 +134,18 @@ int Start_Server() {
 	{
 		MessageBoxA(NULL, "接收到新连接", "", MB_OK);
 	}
-
-	
 		//接收客户端数据  
-		ZeroMemory(buf, BUF_SIZE);
-		retVal = recv(sClient, buf, BUF_SIZE, 0);
-		/*if (SOCKET_ERROR == retVal)
-		{
-			cout << "recv failed!" << endl;
-			closesocket(sServer);   //关闭套接字  
-			closesocket(sClient);   //关闭套接字       
-			WSACleanup();           //释放套接字资源;  
-			return -1;
-		}*/
-		MessageBoxA(NULL, buf, "", MB_OK);
-		char sendBuf[BUF_SIZE] = "这里是服务器";
-		send(sClient, sendBuf, strlen(sendBuf), 0);
+		char recv_buf[BUF_SIZE] ;
+		send_info info; //(1)定义结构体变量		
+		memset(recv_buf, 0, BUF_SIZE);//清空缓存
+		retVal = recv(sClient, recv_buf, BUF_SIZE, 0);//(2)读取数据
+		memset(&info, 0, sizeof(info));//清空结构体
+		memcpy(&info, recv_buf, sizeof(info));//(3)把接收到的信息转换成结构体
+		info.face[info.length] = '\0';
+		//消息内容结束，没有这句的话，可能导致消息乱码或输出异常
+		if (info.face) //判断接收内容并输出
+			MessageBoxA(NULL, info.face, "", MB_OK);
+		//至此，结构体的发送与接收已经顺利结束了
 
 	//退出  
 	closesocket(sServer);   //关闭套接字  
@@ -164,3 +155,10 @@ int Start_Server() {
 }
 
 #endif
+	    /*if (SOCKET_ERROR == retVal)
+		{
+			cout << "send failed!" << endl;
+			closesocket(sHost); //关闭套接字  
+			WSACleanup(); //释放套接字资源  
+			return -1;
+		}*/
