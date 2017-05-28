@@ -65,6 +65,12 @@
     <ClInclude Include="socket.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="MultiBattle.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HEAD.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="BattleCityPoject.rc">

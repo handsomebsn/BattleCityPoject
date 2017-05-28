@@ -161,8 +161,10 @@
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="database.h" />
     <ClInclude Include="Fire.h" />
+    <ClInclude Include="HEAD.h" />
     <ClInclude Include="MapData.h" />
     <ClInclude Include="MD5.h" />
+    <ClInclude Include="MultiBattle.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="socket.h" />
     <ClInclude Include="tank.h" />

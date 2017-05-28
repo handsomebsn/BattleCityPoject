@@ -73,14 +73,17 @@ using namespace std;
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 //游戏开始
 void Start();
+void Start_2();
 //游戏循环
 void Game();
+void Game_2();
 //按键判断
 void Key();
 //画背景
 void DrawBG();
 //画游戏
 void DrawGame();
+void DrawGame_2();
 //输出到窗口
 void Print();
 //画地图块
@@ -93,6 +96,7 @@ void DrawGrass();
 void DrawFire();
 //初始化
 void Init();
+void Init_2();
 //子弹击中砖块
 bool BulletHitBlock(Bullet&);
 //坦克碰到砖块

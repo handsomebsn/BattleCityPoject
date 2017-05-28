@@ -1,185 +1,12 @@
-
-
-#include "tank.h"
-#include <stdlib.h>
-#include <tchar.h>
-
-#include "MapData.h"
-
-#include <mysql.h>
-#include "md5.h"  
-#include "database.h"
-#include "socket.h"
-//MENU  ID
-#define Btn_login 520
-#define Btn_Web 523
-#define Btn_Music 524
-#define Btn_About 525
-#define Btn_Quit 526
-#define Btn_MakePeople 527
-#define Btn_Service 528
-#define Edt_username 521
-#define Edt_password 522
-#define Btn_Single 530
-#define Btn_Multi 533
-#define Btn_Goon 531
-#define Btn_Newgame 532
-#define Btn_Createroom 540
-#define Btn_Joinroom 541
-//是否播放音效
-bool sound = false;
-//鼠标当前地图块属性
-int mouse_id = WALL;
-int mouse_x;
-int mouse_y;
-//地图文件句柄
-string map_name("map.txt");
-fstream map_file;
-//兼容内存设备
-HDC winDC;
-HDC winlogin_DC;
-HDC writeDC;
-HDC backgroundDC;
-HDC background_loginDC;
-HDC player_tankDC;
-HDC bulletDC;
-HDC blockDC;
-HDC fireDC;
-//兼容位图
-HBITMAP writeBMP;
-HBITMAP backgroundBMP;
-HBITMAP backgroundBMP_login;
-HBITMAP player_tankBMP;
-HBITMAP bulletBMP;
-HBITMAP blockBMP;
-HBITMAP fireBMP;
-//游戏定时器
-UINT game_timer;
-//游戏状态
-int game_state;
-//BOSS模式
-bool boss_mode = false;
-//玩家坦克
-BaseTank player_tank;
-//玩家子弹
-list<Bullet*> player_bullet;
-//火花容器
-list<Fire*> fire;
-//敌人容器
-list<BaseTank*> enemy_tank;
-//敌人炮弹容器
-list<list<Bullet*>*> enemy_bullet;
-//地图容器
-vector<int> block;
-//备用地图容器
-vector<int> blockmap;
-//L键按下
-bool keyup_L = true;
-//关卡
-int wintime;
-const int wintimemax = 200;
-int stage;
-const int stage_max = map_max;
-//基地
-int base_time;
-const int base_timemax = 100;
-//玩家生命数
-bool player_death = false;
-const int player_max = 3;
-int player_num = player_max;
-int player_time;
-const int player_timemax = 100;
-//玩家属性上限
-const int max_life = 40;
-const int max_speed = 8;
-const int max_fire_speed = 16;
-const int max_num = 2;
-const int max_bullet_speed = 24;
-//敌人数量
-int enemy_num;//当前屏幕敌军数量
-int enemy_rest;
-const int enemy_maxscr = 4;
-int enemy_time = 0;    //敌对出现时间延迟
-const int enemy_timemax = 100;
-int enemy_total = 1;//敌军总数
-//道具
-int item;
-int item_x;
-int item_y;
-int invin_time;
-const int invin_timemax = 1000;
-//砖块循环数据
-const int wall_min = 4;
-const int wall_max = 6;
-const int wall1_min = wall_min + 100;
-const int wall1_max = wall_max + 100;
-const int wall_timemax = 5;
-int wall_time;
-//水块循环数据
-const int water_min = 12;
-const int water_max = 23;
-const int water1_min = water_min + 100;
-const int water1_max = water_max + 100;
-const int water_timemax = 3;
-int water_time;
-
-bool start_flag = false;
-//游戏窗口句柄
-HWND hwnd;
-HINSTANCE appInstance;
-HINSTANCE hinst;
-//控件句柄
-HWND hButton_login = NULL;
-HWND hButton_Web = NULL;
-HWND hButton_Music = NULL;
-HWND hButton_About = NULL;
-HWND hButton_MakePeople = NULL;
-HWND hButton_Service = NULL;
-HWND hButton_Quit = NULL;
-HWND hEdit_username = NULL;
-HWND hEdit_password = NULL;
-HWND hLabUsername = NULL;
-HWND hButton_Single = NULL;
-HWND hButton_Multi = NULL;
-HWND hButton_Goon = NULL;
-HWND hButton_Newgame = NULL;
-HWND hButton_Createroom = NULL;
-HWND hButton_Joinroon = NULL;
-
-
-LPCTSTR str_password = _T("密码：");
-LPCTSTR str_username = _T("账号：");
-HBITMAP Hbmp;
-int grade = 0;//得分
-char username[128];//控件获得用户名
-char password[128];//控件获得密码
-char nickname[128];//玩家昵称
-int  grade_db;
-bool Admit_Login = false;//准许登录
-wchar_t *wchar = NULL;
-wchar_t *chr = NULL;
-bool first = true;
-void charTowchar(const char *chr, wchar_t *wchar, int size)
-{
-	MultiByteToWideChar(CP_ACP, 0, chr,
-		(int)strlen(chr) + 1, wchar, size / sizeof(wchar[0]));
-}
-void wcharTochar(const wchar_t *wchar, char *chr, int length)
-{
-	WideCharToMultiByte(CP_ACP, 0, wchar, -1,
-		chr, length, NULL, NULL);
-}
-
+#include "HEAD.h"
+#include "MultiBattle.h"
 int  WINAPI WinMain(HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine,
 	int nCmdShow)
-
 {
-
 	appInstance = hInstance;
 	WNDCLASS wndcls;
-
 	//定义窗口	
 	//窗口扩展
 	wndcls.cbClsExtra = 0;
@@ -201,28 +28,21 @@ int  WINAPI WinMain(HINSTANCE hInstance,
 	wndcls.lpszMenuName = NULL;
 	//窗口类型
 	wndcls.style = CS_HREDRAW | CS_VREDRAW;
-
 	//注册窗口
 	RegisterClass(&wndcls);
-
 	//屏幕宽和高
 	int width, height;
 	width = GetSystemMetrics(SM_CXSCREEN);
 	height = GetSystemMetrics(SM_CYSCREEN);
-
 	//在屏幕中央创建窗口
 	hwnd = CreateWindow(L"CC-Tank", L"BattleWorld V1.0", WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
 		(width - (GAME_W + 300)) / 2, (height - (GAME_H + 28)) / 2 - 10, GAME_W + 300, GAME_H + 28, NULL, NULL, hInstance, NULL);
-
 	//显示窗口
 	ShowWindow(hwnd, nCmdShow);
 	//更新窗口
 	UpdateWindow(hwnd);
-	//消息循环
-
 	//获得窗口设备
 	winDC = GetDC(hwnd);
-
 	//创建缓冲内存
 	writeDC = CreateCompatibleDC(winDC);
 	//创建背景内存
@@ -235,7 +55,6 @@ int  WINAPI WinMain(HINSTANCE hInstance,
 	blockDC = CreateCompatibleDC(winDC);
 	//创建火花内存
 	fireDC = CreateCompatibleDC(winDC);
-
 	//创建缓冲位图
 	writeBMP = CreateCompatibleBitmap(winDC, GAME_W, GAME_H);
 	//载入背景位图
@@ -248,7 +67,6 @@ int  WINAPI WinMain(HINSTANCE hInstance,
 	blockBMP = (HBITMAP)LoadImage(hInstance, MAKEINTRESOURCE(MAP_BLOCK), IMAGE_BITMAP, 256, 896, LR_DEFAULTCOLOR);
 	//载入火花位图
 	fireBMP = (HBITMAP)LoadImage(hInstance, MAKEINTRESOURCE(FIRE), IMAGE_BITMAP, 528, 132, LR_DEFAULTCOLOR);
-
 	//选入到对应内存
 	SelectObject(writeDC, writeBMP);
 	SelectObject(backgroundDC, backgroundBMP);
@@ -256,14 +74,10 @@ int  WINAPI WinMain(HINSTANCE hInstance,
 	SelectObject(bulletDC, bulletBMP);
 	SelectObject(blockDC, blockBMP);
 	SelectObject(fireDC, fireBMP);
-
-
 	//用系统时间初始化随机数种子
 	srand((unsigned)time(NULL));
 	//读入预置地图
 	MapInit();
-
-
 	//消息循环
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
@@ -271,22 +85,15 @@ int  WINAPI WinMain(HINSTANCE hInstance,
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-
 	return  (int)msg.wParam;
-
 }
-
-
 //窗口过程函数
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	HFONT hFont;
-
 	switch (message)
 	{
-
 	case WM_CREATE:
-
 		//登录界面编辑框按钮	
 		hButton_login = (HWND)CreateWindow(TEXT("Button"),
 			TEXT("登                 录"),
@@ -373,8 +180,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_COMMAND:
-
-		//按钮——进入游戏事件
+		//按钮——登录事件
 		if (LOWORD(wParam) == Btn_login && HIWORD(wParam) == BN_CLICKED)
 		{
 			wchar_t szcaption[32];
@@ -395,17 +201,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					MessageBox(NULL, L"数据库查询发生错误", L"", NULL);
 				}
-				else
-				{
+				else{
 					resultset = mysql_store_result(&mysql);// 获得结果集
-					if (mysql_num_rows(resultset) != NULL)
-					{
-						while (row = mysql_fetch_row(resultset))
-						{
-							if (strcmp(row[1], username) == 0)
-							{
-								if (strcmp(row[2], passwd) == 0)
-								{
+					if (mysql_num_rows(resultset) != NULL){
+						while (row = mysql_fetch_row(resultset)){
+							if (strcmp(row[1], username) == 0){
+								if (strcmp(row[2], passwd) == 0){
 									Admit_Login = true;
 									stage = atoi(row[4]) - 1;
 									grade_db = atoi(row[5]);
@@ -414,8 +215,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							}
 						}
 					}
-					else
-					{
+					else{
 						printf("\n无查询结果!");
 					}
 					mysql_free_result(resultset);  // 释放结果集  
@@ -465,16 +265,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						NULL);
 					Hbmp = LoadBitmap(appInstance, MAKEINTRESOURCE(Multi_BMP));
 					SendMessage(hButton_Multi, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)Hbmp);
-
-
 				}
 				else {
 					start_flag = false;
 					MessageBox(NULL, L"    账号密码有误", L"登录错误", MB_OK);
 				}
 			}
-			else
-			{
+			else{
 				MessageBox(NULL, L"与服务器断开连接!", L"连接失败", MB_OK);
 			}
 			mysql_close(&mysql);
@@ -482,8 +279,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//按钮--音效事件
 		if (LOWORD(wParam) == Btn_Music && HIWORD(wParam) == BN_CLICKED)
 		{
-			if (sound)
-			{
+			if (sound){
 				sound = false; PlaySound(NULL, NULL, SND_FILENAME);
 				SetWindowText(hButton_Music, L"音效：关");
 			}
@@ -493,23 +289,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 		//按钮--制作人员事件
-		if (LOWORD(wParam) == Btn_MakePeople && HIWORD(wParam) == BN_CLICKED)
-		{
+		if (LOWORD(wParam) == Btn_MakePeople && HIWORD(wParam) == BN_CLICKED){
 			MessageBox(hwnd, L"      Cc、橙汁", L"制作人员", MB_OK);
 		}
 		//按钮--服务条款事件
-		if (LOWORD(wParam) == Btn_Service && HIWORD(wParam) == BN_CLICKED)
-		{
+		if (LOWORD(wParam) == Btn_Service && HIWORD(wParam) == BN_CLICKED){
 			MessageBox(hwnd, L"本站部分内容均来自互联网,仅作学习之用.", L"服务条款", MB_OK);
 		}
 		//按钮--官方网站事件
-		if (LOWORD(wParam) == Btn_Web && HIWORD(wParam) == BN_CLICKED)
-		{
+		if (LOWORD(wParam) == Btn_Web && HIWORD(wParam) == BN_CLICKED){
 			ShellExecute(NULL, _T("open"), _T("explorer.exe"), _T("http://www.baidu.com"), NULL, SW_SHOW);
 		}
 		//按钮--退出游戏事件
-		if (LOWORD(wParam) == Btn_Quit && HIWORD(wParam) == BN_CLICKED)
-		{
+		if (LOWORD(wParam) == Btn_Quit && HIWORD(wParam) == BN_CLICKED){
 			MessageBox(hwnd, L"感谢使用！再见！", L"", MB_OK);
 			PostQuitMessage(0);
 		}
@@ -604,7 +396,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hButton_Multi);
 			DestroyWindow(hButton_Createroom);
 			DestroyWindow(hButton_Joinroon);
-			Start_Server();
+			cLientORServer = 1;
+			start_flag = true;
+			MapInit();
+			Start_2();
+		//	Start_Server();
 
 		}
 		//按钮--多人加入房间事件
@@ -616,9 +412,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hButton_Multi);
 			DestroyWindow(hButton_Createroom);
 			DestroyWindow(hButton_Joinroon);
-			Start_Client();
-			  
-
+			cLientORServer = 2;
+		//	Start_Client();
 		}
 		break;
 
@@ -653,28 +448,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				_T("宋体")    //字体名称
 			);
 			SetBkMode(hdc, TRANSPARENT);
-
 			SelectObject(hdc, hFont);
 			TextOut(hdc, 260, 300, str_password, (int)(_tcsclen(str_password)));
 			TextOut(hdc, 260, 200, str_username, (int)(_tcsclen(str_username)));
-
-
 		}
 		else {
-
 			HBRUSH hBrush = (HBRUSH)CreateSolidBrush(COLORREF RGB(200, 255, 230));
 			hFont = (HFONT)GetStockObject(SYSTEM_FIXED_FONT);
 			SelectObject(hdc, hBrush);
 			SelectObject(hdc, hFont);
 			//背景颜色区域
 			Rectangle(hdc, GAME_W, 0, GAME_W + 300, GAME_H + 28);
-
 			//屏幕右侧数据信息
 			LPCTSTR str1 = _T("敌军数量：");
 			//变量转字符
 			char  ch1[10];
 			_itoa(enemy_total, ch1, 10);
-
 			int num1 = MultiByteToWideChar(0, 0, ch1, -1, NULL, 0);
 			wchar_t *wide1 = new wchar_t[num1];
 			MultiByteToWideChar(0, 0, ch1, -1, wide1, num1);
@@ -699,7 +488,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			TextOut(hdc, GAME_W + 100, 600, str4, (int)(_tcsclen(str4)));
 
 			//游戏说明信息
-			LPCTSTR Game_Guide[21] = { L"游戏说明",
+			LPCTSTR Game_Guide[22] = { L"游戏说明",
 				L"  游戏模式:",
 				L"    上下左右方向键移动坦克",
 				L"    空格键开火",
@@ -719,11 +508,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				L"    F2键载入自制地图并编辑",
 				L"    F3键保存地图",
 			};
-			for (int i = 0; i < 19; ++i)
-			{
+			for (int i = 0; i < 19; ++i){
 				TextOut(hdc, GAME_W + 10, (i + 1) * 22, Game_Guide[i], (int)(_tcsclen(Game_Guide[i])));
 			}
-
 			EndPaint(hWnd, &ps);
 		}
 	}
@@ -889,14 +676,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					if (j <= 10)
 					{
-						strcat(rank, sort[j]);
-						strcat(rank, "\t");
-						strcat(rank, row[3]);
-						strcat(rank, "\t");
-						strcat(rank, row[4]);
-						strcat(rank, "\t");
-						strcat(rank, row[5]);
-						strcat(rank, "\n");
+						strcat(rank, sort[j]);strcat(rank, "\t");
+						strcat(rank, row[3]);strcat(rank, "\t");
+						strcat(rank, row[4]);strcat(rank, "\t");
+						strcat(rank, row[5]);strcat(rank, "\n");
 						++j;
 					}
 					else
@@ -924,10 +707,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
-
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
-
 }
 
 //游戏开始
@@ -948,37 +729,35 @@ void Game()
 	//玩家操作按键响应
 	if (player_death == false)
 		Key();
-	//绘制游戏画面
-	DrawGame();
+	//绘制游戏画面，区别对待单人和多人游戏
+	if (cLientORServer == 0)
+		DrawGame();
+	else
+		DrawGame_2();
 	//基地毁灭
-	if (base_time > 0)
-	{
+	if (base_time > 0){
 		if (--base_time == 0)
 			game_state = GAMEOVER;
 	}
 	//过关
-	if (wintime > 0)
-	{
+	if (wintime > 0){
 		if (--wintime == 0)
 			game_state = NEXTSTAGE;
 	}
 	//玩家死亡
 	if (player_death == true)
 	{
-
 		if (--player_time == 0)
 		{
 			if (player_num == 0)
 				game_state = GAMEOVER;
-			else
-			{
+			else{
 				//玩家复活
 				player_death = false;
 				player_tank = BaseTank(20 / 10 - 1, 20, 0, UP, 5 * 64, 10 * 64 + 64, UP, false, 16, 4, 8, 2, 1, 10, 8);
 			}
 			InvalidateRect(hwnd, NULL, false);
 		}
-
 	}
 	//少于屏幕最大敌人数并且剩余敌人数大于零添加敌人
 	if (enemy_num < enemy_maxscr && enemy_time == 0 && enemy_rest>0)
@@ -1008,7 +787,6 @@ void Game()
 				enemy_tank.push_back(new BaseTank(GREEN, 30, 0, DOWN, x, -64, DOWN, false, 32, 2, 4, 1, 1, 10, 6));
 			//添加子弹容器
 			enemy_bullet.push_back(new list<Bullet*>);
-
 			//刷新剩余量绘图
 			InvalidateRect(hwnd, NULL, false);
 		}
@@ -1021,20 +799,17 @@ void Key()
 	//秘籍
 	if (KEYDOWN('Z'))
 	{
-		if (KEYDOWN(VK_UP))
-		{
+		if (KEYDOWN(VK_UP))	{
 			if (stage > 0)
 				--stage;
 			Init();
 		}
-		else if (KEYDOWN(VK_DOWN))
-		{
+		else if (KEYDOWN(VK_DOWN))	{
 			if (stage < stage_max - 1)
 				++stage;
 			Init();
 		}
-		else if (KEYDOWN('F'))
-		{
+		else if (KEYDOWN('F'))	{
 			player_tank.life = 40;
 			player_tank.id = player_tank.life / 10 - 1;
 			player_tank.speed = 8;
@@ -1047,23 +822,19 @@ void Key()
 	else if (player_tank.move == 0)
 	{
 		//行走
-		if (KEYDOWN(VK_DOWN))
-		{
+		if (KEYDOWN(VK_DOWN)){
 			player_tank.Change(DOWN);
 			player_tank.move = 64 / player_tank.speed;
 		}
-		else if (KEYDOWN(VK_LEFT))
-		{
+		else if (KEYDOWN(VK_LEFT))	{
 			player_tank.Change(LEFT);
 			player_tank.move = 64 / player_tank.speed;
 		}
-		else if (KEYDOWN(VK_UP))
-		{
+		else if (KEYDOWN(VK_UP))	{
 			player_tank.Change(UP);
 			player_tank.move = 64 / player_tank.speed;
 		}
-		else if (KEYDOWN(VK_RIGHT))
-		{
+		else if (KEYDOWN(VK_RIGHT))	{
 			player_tank.Change(RIGHT);
 			player_tank.move = 64 / player_tank.speed;
 		}
@@ -1077,8 +848,7 @@ void Key()
 				if (++player_tank.move_step > 2)
 					player_tank.move_step = 0;
 			}
-			else
-			{
+			else	{
 				for (list<BaseTank*>::iterator iter = enemy_tank.begin(); iter != enemy_tank.end(); ++iter)
 				{
 					BaseTank& tank = **iter;
@@ -1100,43 +870,36 @@ void Key()
 		if (++player_tank.move_step > 2)
 			player_tank.move_step = 0;
 		player_tank.Move();
-		if (player_tank.move == 0)
-		{
+		if (player_tank.move == 0)	{
 			player_tank.x = (player_tank.x + 32) / 64 * 64;
 			player_tank.y = (player_tank.y + 32) / 64 * 64;
 		}
 	}
 	//转动炮台
-	if (KEYDOWN('S'))
-	{
+	if (KEYDOWN('S')){
 		if (sound)PLAYB(TURRET);
 		player_tank.gun_face = DOWN;
 	}
-	else if (KEYDOWN('A'))
-	{
+	else if (KEYDOWN('A'))	{
 		if (sound)PLAYB(TURRET);
 		player_tank.gun_face = LEFT;
 	}
-	else if (KEYDOWN('W'))
-	{
+	else if (KEYDOWN('W'))	{
 		if (sound)PLAYB(TURRET);
 		player_tank.gun_face = UP;
 	}
-	else if (KEYDOWN('D'))
-	{
+	else if (KEYDOWN('D'))	{
 		if (sound)PLAYB(TURRET);
 		player_tank.gun_face = RIGHT;
 	}
 
 	//锁定炮台
-	if (keyup_L == true && KEYDOWN('L'))
-	{
+	if (keyup_L == true && KEYDOWN('L'))	{
 		keyup_L = false;
 		if (player_tank.gun_lock == false)player_tank.gun_lock = true;
 		else player_tank.gun_lock = false;
 	}
 	else if (KEYUP('L'))keyup_L = true;
-
 	//开火
 	if (KEYDOWN(VK_SPACE)) {
 		if (!player_tank.gun_step && player_tank.bullet_num < player_tank.bullet_max)
@@ -1167,14 +930,12 @@ void Key()
 }
 
 //画背景
-void DrawBG()
-{
+void DrawBG(){
 	BitBlt(writeDC, 0, 0, GAME_W, GAME_H, backgroundDC, 0, 0, SRCCOPY);
 }
 
 //输出缓冲区到屏幕
-void Print()
-{
+void Print(){
 	BitBlt(winDC, 0, 0, GAME_W, GAME_H, writeDC, 0, 0, SRCCOPY);
 }
 
@@ -1211,8 +972,7 @@ void Init()
 {
 	//显示关卡
 	char s[100];
-	if (game_state == GAME)
-	{
+	if (game_state == GAME)	{
 		sprintf(s, "准备进入第%d关", stage + 1);
 		if (sound)PLAYA(START);
 	}
@@ -1307,21 +1067,17 @@ void DrawBlock()
 		int &id = *iter;
 		if (id == GRASS || (id == FLOOR && boss_mode == false))continue;
 		//砖块循环
-		if (wall_time == wall_timemax && id >= wall_min && id <= wall_max)
-		{
+		if (wall_time == wall_timemax && id >= wall_min && id <= wall_max)	{
 			if (++id > wall_max)id = wall_min;
 		}
-		else if (wall_time == wall_timemax && id >= wall1_min && id <= wall1_max)
-		{
+		else if (wall_time == wall_timemax && id >= wall1_min && id <= wall1_max)	{
 			if (--id == wall1_min)id = wall_min;
 		}
 		//水块循环
-		else if (water_time == water_timemax && id >= water_min && id <= water_max)
-		{
+		else if (water_time == water_timemax && id >= water_min && id <= water_max)	{
 			if (++id >= water_max)id = water1_max;
 		}
-		else if (water_time == water_timemax && id >= water1_min && id <= water1_max)
-		{
+		else if (water_time == water_timemax && id >= water1_min && id <= water1_max)	{
 			if (--id == water1_min)id = water_min;
 		}
 		//不等于雪块和草块就进行绘制
@@ -1362,9 +1118,7 @@ void PlayerBullet()
 			iter_bullet = player_bullet.erase(iter_bullet);
 			erase_bullet = true;
 		}
-
-		else
-		{
+		else{
 			list<BaseTank*>::iterator iter_tank;
 			list<list<Bullet*>*>::iterator iter_enemy_bullet;
 			//是否击中敌人
@@ -1379,7 +1133,6 @@ void PlayerBullet()
 					tank.life -= bullet.power - tank.armor;
 					if (tank.life <= 0)
 					{
-
 						//敌方数量-1
 						--enemy_total;
 						//刷新剩余量绘图
@@ -1397,8 +1150,7 @@ void PlayerBullet()
 								item_x = tank.x;
 								item_y = tank.y;
 							}
-							grade += 10;
-
+							grade += 10;//加分
 							break;
 						case BLUE:
 							if (rand() % 2 == 0)
@@ -1447,8 +1199,7 @@ void PlayerBullet()
 					break;
 				}
 				//是否击中敌人炮弹
-				else
-				{
+				else{
 					for (list<Bullet*>::iterator i = b.begin(); i != b.end(); ++i)
 					{
 						Bullet& bullet1 = **i;
@@ -1863,24 +1614,21 @@ void Item()
 			{
 				//坦克生命
 			case LIFE:
-				if (player_tank.life < max_life)
-				{
+				if (player_tank.life < max_life){
 					player_tank.life += 10;
 					player_tank.id = player_tank.life / 10 - 1;
 				}
 				break;
 				//子弹射速
 			case POWER:
-				if (player_tank.bullet_speed < max_bullet_speed)
-				{
+				if (player_tank.bullet_speed < max_bullet_speed){
 					player_tank.fire_speed += 2;
 					player_tank.bullet_speed += 4;
 				}
 				break;
 				//坦克速度
 			case SPEED:
-				if (player_tank.speed < max_speed)
-				{
+				if (player_tank.speed < max_speed){
 					player_tank.speed += 1;
 				}
 				break;
@@ -1906,13 +1654,11 @@ void Edit()
 	//输出画面
 	Print();
 	//编辑按键判断
-	if (KEYDOWN(VK_LBUTTON))
-	{
+	if (KEYDOWN(VK_LBUTTON)){
 		blockmap[stage*block_wide*block_high + mouse_y / 64 * block_wide + mouse_x / 64] = mouse_id;
 		block[mouse_y / 64 * block_wide + mouse_x / 64] = mouse_id;
 	}
-	else if (KEYDOWN(VK_RBUTTON))
-	{
+	else if (KEYDOWN(VK_RBUTTON)){
 		blockmap[stage*block_wide*block_high + mouse_y / 64 * block_wide + mouse_x / 64] = FLOOR;
 		block[mouse_y / 64 * block_wide + mouse_x / 64] = FLOOR;
 	}
@@ -1935,12 +1681,10 @@ void Edit()
 void Save()
 {
 	map_file.open(map_name, fstream::out);
-	if (!map_file)
-	{
+	if (!map_file){
 		MessageBox(hwnd, L"地图保存失败！", L"错误", MB_OK | MB_ICONWARNING);
 	}
-	else
-	{
+	else{
 		for (vector<int>::iterator i = blockmap.begin(); i != blockmap.end(); ++i)
 		{
 			map_file << *i;
@@ -1968,8 +1712,7 @@ void Load()
 	{
 		MessageBox(hwnd, L"载入地图失败！", L"错误", MB_OK | MB_ICONWARNING);
 	}
-	else
-	{
+	else{
 		string s;
 		for (vector<int>::iterator i = blockmap.begin(); i != blockmap.end(); ++i)
 		{
@@ -1982,14 +1725,17 @@ void Load()
 	map_file.close();
 }
 //载入预置地图
-void LoadMap()
-{
+void LoadMap(){
 	block.assign(blockmap.begin() + block_wide*block_high*stage,
 		blockmap.begin() + block_wide*block_high*stage + block_wide*block_high);
 }
 //全地图初始化
-void MapInit()
-{
-	blockmap.assign(map, map + block_wide*block_high*map_max);
+void MapInit(){
+	if (cLientORServer == 0) {
+		blockmap.assign(map, map + block_wide*block_high*map_max);
+	}
+	else {
+		blockmap.assign(map_2, map_2 + block_wide*block_high*map_max_2);
+	}
 }
 
