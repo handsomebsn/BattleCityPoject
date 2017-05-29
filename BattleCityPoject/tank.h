@@ -134,4 +134,4 @@ void Receive_Client();
 //服务器端发送数据
 void Send_Server();
 //客户端发送数据
-void Send_Client(int face);
+void Send_Client(int facing,int xx,int yy);

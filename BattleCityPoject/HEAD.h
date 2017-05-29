@@ -59,6 +59,7 @@ int game_state;
 bool boss_mode = false;
 //玩家坦克
 BaseTank player_tank;
+BaseTank enemy2_tank;
 //玩家子弹
 list<Bullet*> player_bullet;
 //火花容器

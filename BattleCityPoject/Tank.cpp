@@ -810,6 +810,7 @@ void Game()
 //按键判断
 void Key()
 {
+	int temp_face = -1;//临时记录方向
 	//秘籍
 	if (KEYDOWN('Z'))
 	{
@@ -834,27 +835,27 @@ void Key()
 	}
 	//坦克行走
 	else if (player_tank.move == 0)
-	{
+	{		
 		//行走
 		if (KEYDOWN(VK_DOWN)){
 			player_tank.Change(DOWN);
 			player_tank.move = 64 / player_tank.speed;
-			if(clientORserver)Send_Client(DOWN);//TCP发送消息
+			if(clientORserver)Send_Client(DOWN,player_tank.x,player_tank.y);//发送信号
 		}
 		else if (KEYDOWN(VK_LEFT))	{
 			player_tank.Change(LEFT);
 			player_tank.move = 64 / player_tank.speed;
-			if(clientORserver)Send_Client(LEFT);
+			if(clientORserver)Send_Client(LEFT,player_tank.x,player_tank.y);//发送信号
 		}
 		else if (KEYDOWN(VK_UP))	{
 			player_tank.Change(UP);
 			player_tank.move = 64 / player_tank.speed;
-			if(clientORserver)Send_Client(UP);
+			if(clientORserver)Send_Client(UP,player_tank.x,player_tank.y);//发送信号
 		}
 		else if (KEYDOWN(VK_RIGHT))	{
 			player_tank.Change(RIGHT);
 			player_tank.move = 64 / player_tank.speed;
-			if(clientORserver)Send_Client(RIGHT);
+			if(clientORserver)Send_Client(RIGHT,player_tank.x,player_tank.y);//发送信号
 		}
 		if (player_tank.move > 0)
 		{
@@ -892,6 +893,7 @@ void Key()
 			player_tank.x = (player_tank.x + 32) / 64 * 64;
 			player_tank.y = (player_tank.y + 32) / 64 * 64;
 		}
+		
 	}
 	//转动炮台
 	if (KEYDOWN('S')){

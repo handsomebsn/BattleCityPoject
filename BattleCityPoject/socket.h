@@ -10,6 +10,7 @@ using namespace std;
 //服务器端
 SOCKET          sServer;        //服务器套接字  
 SOCKET          sClient;        //客户端套接字 
+int             retVal_server;         //返回值  
 //客户端
 SOCKET sHost; //服务器套接字  
 
@@ -26,7 +27,7 @@ int Start_Client()
 {
 
 	WSADATA wsd; //WSADATA变量  
-	int iMode=1;
+	int iMode = 1;
 	SOCKADDR_IN servAddr; //服务器地址  
 	int retVal; //返回值  
 	//初始化套结字动态库  
@@ -53,7 +54,7 @@ int Start_Client()
 	retVal = ioctlsocket(sHost, FIONBIO, (u_long FAR*)&iMode);
 	if (retVal == SOCKET_ERROR)
 	{
-		printf("ioctlsocket failed!");
+		//printf("ioctlsocket failed!");
 		WSACleanup();
 		return -1;
 	}
@@ -78,7 +79,7 @@ int Start_Client()
 			}
 			else
 			{
-				printf("connection failed!\n");
+				//printf("connection failed!\n");
 				closesocket(sHost);
 				WSACleanup();
 				return -1;
@@ -88,15 +89,12 @@ int Start_Client()
 	return 0;
 }
 int Start_Server() {
-
 	WSADATA         wsd;            //WSADATA变量  
-
 	SOCKADDR_IN     addrServ;;      //服务器地址  
-	int             retVal;         //返回值  
 	//初始化套结字动态库  
 	if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)
 	{
-		MessageBoxA(NULL,  "WSAStartup failed!", "", MB_OK);		
+		MessageBoxA(NULL, "WSAStartup failed!", "", MB_OK);
 		return 1;
 	}
 
@@ -104,7 +102,7 @@ int Start_Server() {
 	sServer = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (INVALID_SOCKET == sServer)
 	{
-		MessageBoxA(NULL,  "socket failed!", "", MB_OK);	
+		MessageBoxA(NULL, "socket failed!", "", MB_OK);
 		WSACleanup();//释放套接字资源;  
 		return  -1;
 	}
@@ -114,37 +112,37 @@ int Start_Server() {
 	addrServ.sin_port = htons(4999);
 	addrServ.sin_addr.s_addr = INADDR_ANY;
 	//绑定套接字  
-	retVal = bind(sServer, (LPSOCKADDR)&addrServ, sizeof(SOCKADDR_IN));
-	if (SOCKET_ERROR == retVal)
+	retVal_server = bind(sServer, (LPSOCKADDR)&addrServ, sizeof(SOCKADDR_IN));
+	if (SOCKET_ERROR == retVal_server)
 	{
-		MessageBoxA(NULL,  "bind failed!", "", MB_OK);
+		MessageBoxA(NULL, "bind failed!", "", MB_OK);
 		closesocket(sServer);   //关闭套接字  
 		WSACleanup();           //释放套接字资源;  
 		return -1;
 	}
 
 	//开始监听   
-	retVal = listen(sServer, 1);
-	if (SOCKET_ERROR == retVal)
+	retVal_server = listen(sServer, 1);
+	if (SOCKET_ERROR == retVal_server)
 	{
-		MessageBoxA(NULL,  "listen failed!", "", MB_OK);
+		MessageBoxA(NULL, "listen failed!", "", MB_OK);
 		closesocket(sServer);   //关闭套接字  
 		WSACleanup();           //释放套接字资源;  
 		return -1;
 	}
 	// 设置Socket为非阻塞模式
-		int iMode = 1;
-	retVal = ioctlsocket(sServer, FIONBIO, (u_long FAR*) &iMode);
-	if (retVal == SOCKET_ERROR)
+	int iMode = 1;
+	retVal_server = ioctlsocket(sServer, FIONBIO, (u_long FAR*) &iMode);
+	if (retVal_server == SOCKET_ERROR)
 	{
-		printf("ioctlsocket failed!\n");
+		//printf("ioctlsocket failed!\n");
 		WSACleanup();
 		return -1;
 	}
 	//接受客户端请求  
 	sockaddr_in addrClient;
 	int addrClientlen = sizeof(addrClient);
-	MessageBoxA(NULL, "等待玩家加入ing", "", MB_OK);
+	MessageBoxA(NULL, "等待玩家加入", "", MB_OK);
 	while (true)
 	{
 		sClient = accept(sServer, (sockaddr FAR*)&addrClient, &addrClientlen);
@@ -152,8 +150,8 @@ int Start_Server() {
 		if (INVALID_SOCKET == sClient)
 		{
 			MessageBoxA(NULL, "accept failed!", "", MB_OK);
-			closesocket(sServer);   //关闭套接字  
-			WSACleanup();           //释放套接字资源;  
+			closesocket(sServer);   //关闭套接字
+			WSACleanup();           //释放套接字资源;
 			return -1;
 		}*/
 		//非阻塞模式
@@ -165,43 +163,63 @@ int Start_Server() {
 				Sleep(5);
 				continue;
 			}
-			else{
-				printf("accept failed!\n");
+			else {
+				//printf("accept failed!\n");
 				closesocket(sServer);
 				WSACleanup();
 				return -1;
 			}
 		}
-		MessageBoxA(NULL, "有玩家加入", "", MB_OK);break;
+		MessageBoxA(NULL, "有玩家加入", "", MB_OK); break;
 	}
 	return 0;
 }
-
+#define nothing -1
+//接收客户端数据  
 void Receive_Server()
 {
-	//接收客户端数据  
 	char recv_buf[BUF_SIZE];
 	send_info info; //(1)定义结构体变量		
-	memset(recv_buf, 0, BUF_SIZE);//清空缓存
-	recv(sClient, recv_buf, BUF_SIZE, 0);//(2)读取数据
-	memset(&info, 0, sizeof(info));//清空结构体
+	memset(recv_buf, nothing, BUF_SIZE);//清空缓存
+	memset(&info, nothing, sizeof(info));//清空结构体
+	retVal_server = recv(sClient, recv_buf, BUF_SIZE, 0);//(2)读取数据
 	memcpy(&info, recv_buf, sizeof(info));//(3)把接收到的信息转换成结构体
-	switch (info.face) //判断接收内容并输出
+	//ZeroMemory(recv_buf, BUF_SIZE);	
+	if (SOCKET_ERROR == retVal_server)
 	{
-	case DOWN:Player_B.face = DOWN; break;
-	case UP:Player_B.face = UP; break;
-	case LEFT:Player_B.face = LEFT; break;
-	case RIGHT:Player_B.face = RIGHT; break;
+		int err = WSAGetLastError();
+		if (err == WSAEWOULDBLOCK)
+		{
+			Sleep(5);
+			//continue;
+		}
+		else if (err == WSAETIMEDOUT || err == WSAENETDOWN)
+		{
+			//printf("recv failed!\n");
+			closesocket(sServer);
+			closesocket(sClient);
+			WSACleanup();
+			//return -1;
+		}
+	}
+	else {
+		switch (info.face) //判断接收内容并输出
+		{
+		case DOWN:Player_B.face = DOWN; break;
+		case UP:Player_B.face = UP; break;
+		case LEFT:Player_B.face = LEFT; break;
+		case RIGHT:Player_B.face = RIGHT; break;
+		}
 	}
 }
+//接收客户端数据  
 void Receive_Client()
 {
-	//接收客户端数据  
 	char recv_buf[BUF_SIZE];
 	send_info info; //(1)定义结构体变量		
-	memset(recv_buf, 0, BUF_SIZE);//清空缓存
+	memset(recv_buf, nothing, BUF_SIZE);//清空缓存
 	recv(sClient, recv_buf, BUF_SIZE, 0);//(2)读取数据
-	memset(&info, 0, sizeof(info));//清空结构体
+	memset(&info, nothing, sizeof(info));//清空结构体
 	memcpy(&info, recv_buf, sizeof(info));//(3)把接收到的信息转换成结构体
 	switch (info.face) //判断接收内容并输出
 	{
@@ -211,14 +229,14 @@ void Receive_Client()
 	case RIGHT:Player_B.face = RIGHT; break;
 	}
 }
-void Send_Client(int face)
+void Send_Client(int facing, int xx, int yy)
 {
 	//发送数据
 	char send_buf[BUF_SIZE];
+	memset(send_buf, nothing, BUF_SIZE);//清空缓存，不清空的话可能导致接收时产生乱码，
 	send_info info; //(1)定义结构体变量
-	memset(&info, 0, sizeof(info));//清空结构体
-	info.face = face;
-	memset(send_buf, 0, BUF_SIZE);//清空缓存，不清空的话可能导致接收时产生乱码，
+	memset(&info, nothing, sizeof(info));//清空结构体
+	info.face = facing; info.x = xx; info.y = yy;
 	memcpy(send_buf, &info, sizeof(info)); //(3)结构体转换成字符串
 	send(sHost, send_buf, sizeof(send_buf), 0);//(4)发送信息	
 }
@@ -227,19 +245,19 @@ void Send_Server()
 	//发送数据
 	char send_buf[BUF_SIZE];
 	send_info info; //(1)定义结构体变量
-	memset(&info, 0, sizeof(info));//清空结构体
-	info.face = DOWN;
-	memset(send_buf, 0, BUF_SIZE);//清空缓存，不清空的话可能导致接收时产生乱码，
+	memset(&info, nothing, sizeof(info));//清空结构体
+	memset(send_buf, nothing, BUF_SIZE);//清空缓存，不清空的话可能导致接收时产生乱码，
 	memcpy(send_buf, &info, sizeof(info)); //(3)结构体转换成字符串
 	send(sHost, send_buf, sizeof(send_buf), 0);//(4)发送信息	
 }
 #endif
-	    /*if (SOCKET_ERROR == retVal)
-		{
-			cout << "send failed!" << endl;
-			closesocket(sHost); //关闭套接字  
-			WSACleanup(); //释放套接字资源  
-			return -1;
-		}*/	
-		//	info.face[info.length] = '\0';
-		//消息内容结束，没有这句的话，可能导致消息乱码或输出异常
+/*if (SOCKET_ERROR == retVal)
+{
+	cout << "send failed!" << endl;
+	closesocket(sHost); //关闭套接字
+	WSACleanup(); //释放套接字资源
+	return -1;
+}*/
+//	info.face[info.length] = '\0';
+//消息内容结束，没有这句的话，可能导致消息乱码或输出异常
+

@@ -1,13 +1,14 @@
 #pragma once
 #ifndef __MultiBattle__
 #include"HEAD.h"
+bool load_enemytank = true;
 //游戏开始
 void Start_2()
 {
 	SetTimer(hwnd, GAME_ID, GAME_TIME, NULL);
 	player_tank = BaseTank(20 / 10 - 1, 20, 0, UP, 5 * 64, 10 * 64 + 64, UP, false, 16, 4, 8, 2, 1, 10, 8);
+	enemy2_tank=BaseTank(GOLD, 20, 0, DOWN, 9 * 64, -64 , DOWN, false, 16, 4, 8, 2, 1, 10, 8);
 	game_state = GAME;
-	memset(&Player_B, 0, sizeof(Player_B));//清空结构体
 	if (start_flag == true) {
 		Init_2();
 	}
@@ -19,8 +20,9 @@ void Init_2()
 	stage = 0;
 	//BOSS模式
 	boss_mode = false;
+	//准许加载敌方坦克
+	load_enemytank = true;
 	//玩家坦克
-
 	if (clientORserver == 1) {
 		player_tank = BaseTank(
 			player_tank.id,	player_tank.life,player_tank.armor,
@@ -30,15 +32,31 @@ void Init_2()
 			player_tank.fire_speed,
 			player_tank.bullet_id, player_tank.bullet_max,
 			player_tank.bullet_power, player_tank.bullet_speed);
+		enemy2_tank = BaseTank(
+			GOLD, player_tank.life, player_tank.armor,
+			DOWN, 9 * 64, -64, DOWN,
+			player_tank.gun_lock,
+			64 / player_tank.speed, player_tank.speed,
+			player_tank.fire_speed,
+			player_tank.bullet_id, player_tank.bullet_max,
+			player_tank.bullet_power, player_tank.bullet_speed);
 	}else if(clientORserver==2)
 	{
 		player_tank = BaseTank(
 			player_tank.id,	player_tank.life, player_tank.armor,
-			DOWN, 9 * 64, -1 * 64 + 0,	DOWN,
+			DOWN, 9 * 64, -64 ,	DOWN,
 			player_tank.gun_lock,
 			64 / player_tank.speed,	player_tank.speed,
 			player_tank.fire_speed,
 			player_tank.bullet_id,	player_tank.bullet_max,
+			player_tank.bullet_power, player_tank.bullet_speed);
+		enemy2_tank = BaseTank(
+			GOLD, player_tank.life, player_tank.armor,
+			UP, 5 * 64, 10 * 64 + 64, UP,
+			player_tank.gun_lock,
+			64 / player_tank.speed, player_tank.speed,
+			player_tank.fire_speed,
+			player_tank.bullet_id, player_tank.bullet_max,
 			player_tank.bullet_power, player_tank.bullet_speed);
 	}
 	//以下为动态资源的释放
@@ -81,14 +99,12 @@ void Init_2()
 	//道具清零
 	item = NONE;
 	invin_time = 0;
+	
 	LoadMap();
-	//MessageBoxA(NULL, "调试", "", MB_OK);
 }
 //游戏过程
 void Game_2()
 {
-	if(clientORserver==1)Receive_Server();
-	if(clientORserver==2)Receive_Client();
 	//玩家操作按键响应
 	if (player_death == false)
 		Key();
@@ -98,44 +114,7 @@ void Game_2()
 	if (base_time > 0) {
 		if (--base_time == 0)
 			game_state = GAMEOVER;
-	}
-	//玩家死亡
-	if (player_death == true)
-	{
-		if (--player_time == 0)
-		{
-			if (player_num == 0)
-				game_state = GAMEOVER;
-			else {
-				//玩家复活
-				player_death = false;
-				player_tank = BaseTank(20 / 10 - 1, 20, 0, UP, 5 * 64, 10 * 64 + 64, UP, false, 16, 4, 8, 2, 1, 10, 8);
-			}
-			InvalidateRect(hwnd, NULL, false);
-		}
-	}
-	//少于屏幕最大敌人数并且剩余敌人数大于零添加敌人
-	if (enemy_num < enemy_maxscr && enemy_time == 0 && enemy_rest>0)
-	{
-		enemy_time = enemy_timemax;
-	}
-	if (enemy_time > 0)
-	{
-		--enemy_time;
-		if (enemy_time == 0)
-		{
-			++enemy_num;
-			--enemy_rest;
-			if(clientORserver==1)
-			enemy_tank.push_back(new BaseTank(GOLD, 20, 0, DOWN, 9 * 64, -1 * 64 + 0, DOWN, false, 16, 4, 8, 2, 1, 10, 8));
-			else if(clientORserver==2)
-			enemy_tank.push_back(new BaseTank(GOLD, 20, 0, UP, 5 * 64, 10 * 64 + 64,UP, false, 16, 4, 8, 2, 1, 10, 8));
-			//添加子弹容器
-			enemy_bullet.push_back(new list<Bullet*>);
-			//刷新剩余量绘图
-			InvalidateRect(hwnd, NULL, false);
-		}
-	}
+	}	
 }
 //游戏单位绘制
 void DrawGame_2()
@@ -166,89 +145,48 @@ void DrawGame_2()
 }
 void EnemyTank_2()
 {
-	list<BaseTank*>::iterator iter_tank;
-	list<list<Bullet*>*>::iterator iter_bullet;
-	//按顺序处理所有敌方坦克
-	for (iter_tank = enemy_tank.begin(),
-		iter_bullet = enemy_bullet.begin();
-		iter_tank != enemy_tank.end();
-		++iter_tank,
-		++iter_bullet)
+	//坦克行走
+	if (enemy2_tank.move == 0)
 	{
-		BaseTank& t = **iter_tank;
-		//开火
-		if (t.gun_step == 0 && t.bullet_num < t.bullet_max && rand() % 20 == 0)
-		{
-			//PLAYA(SHOOT)
-			int x = t.x + (64 - 40) / 2;
-			int y = t.y + (64 - 40) / 2;
-			switch (t.gun_face)
-			{
-			case DOWN:
-				y += 47;
-				break;
-			case LEFT:
-				x -= 47;
-				break;
-			case UP:
-				y -= 47;
-				break;
-			case RIGHT:
-				x += 47;
-			}
-			(**iter_bullet).push_back(new Bullet(t.bullet_id, 100, t.gun_face, x, y,
-				t.bullet_speed, t.bullet_power));
-			++t.bullet_num;
-			t.Fire();
+		//行走
+		Player_B.face = -1;
+		Receive_Server();
+		switch (Player_B.face)
+		{			
+		case DOWN:enemy2_tank.Change(DOWN);
+			enemy2_tank.move = 64 / enemy2_tank.speed; break;
+		case LEFT:enemy2_tank.Change(LEFT);
+			enemy2_tank.move = 64 / enemy2_tank.speed; break;
+		case UP:enemy2_tank.Change(UP);
+			enemy2_tank.move = 64 / enemy2_tank.speed; break;
+		case RIGHT:enemy2_tank.Change(RIGHT);
+			enemy2_tank.move = 64 / enemy2_tank.speed; break;
 		}
-		int oldface = t.face;
-		//当步数减为零并且炮口闪光消失时随机生成移动方向和步数
-		if (t.delay > 0)
+		if (enemy2_tank.move > 0)
 		{
-			if (++t.move_step > 2)
-				t.move_step = 0;
-			--t.delay;
-		}
-		if (t.move == 0 && t.delay == 0)
-		{
-			t.Change(Player_B.face);//转换方向
-			t.move = 64 / t.speed;
-			//撞到砖块
-			if (TankHitBlock(t) == true)
+			bool hit = TankHitBlock(enemy2_tank);
+			enemy2_tank.move = 64 / enemy2_tank.speed_real;
+			if (hit == true)
 			{
-				t.move = 0;
-				t.delay = 5;
+				enemy2_tank.move = 0;
+				if (++enemy2_tank.move_step > 2)
+					enemy2_tank.move_step = 0;
 			}
-			//撞到玩家坦克
-			else if (player_death == false && TankHitTank(t, player_tank) == true)
-			{
-				//t.Change(oldface);
-				t.move = 0;
-				t.delay = 5;
-			}
-			//如果撞到敌方任意非己坦克……
-			else
-			{
-				for (list<BaseTank*>::iterator i = enemy_tank.begin(); i != enemy_tank.end(); ++i)
-					//如果不是自己本身并且撞到对方
-					if (i != iter_tank && TankHitTank(t, **i) == true)
-					{
-						//t.Change(oldface);
-						t.move = 0;
-						break;
-					}
-			}
-			if (t.move > 0)
-				t.move = 64 / t.speed_real;
+			if (sound)PLAYB(MOTOR);
 		}
-		if (t.move > 0)
-		{
-			--t.move;
-			if (++t.move_step > 2)
-				t.move_step = 0;
-			t.Move();
-		}
-		t.Draw(writeDC, player_tankDC, false);
 	}
+	if (enemy2_tank.move > 0)
+	{
+		--enemy2_tank.move;
+		if (++enemy2_tank.move_step > 2)
+			enemy2_tank.move_step = 0;
+		enemy2_tank.Move();
+		if (enemy2_tank.move == 0) {
+			enemy2_tank.x = (enemy2_tank.x + 32) / 64 * 64;
+			enemy2_tank.y = (enemy2_tank.y + 32) / 64 * 64;
+		}
+
+	}
+	enemy2_tank.Draw(writeDC, player_tankDC, false);
 }
 #endif
