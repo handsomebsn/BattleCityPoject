@@ -150,7 +150,8 @@ void EnemyTank_2()
 	{
 		//ÐÐ×ß
 		Player_B.face = -1;
-		Receive_Server();
+		if(clientORserver==1)Receive_Server();
+		if (clientORserver == 2)Receive_Client();
 		switch (Player_B.face)
 		{			
 		case DOWN:enemy2_tank.Change(DOWN);

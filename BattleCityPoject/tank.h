@@ -132,6 +132,6 @@ void Receive_Server();
 //客户端接收数据
 void Receive_Client();
 //服务器端发送数据
-void Send_Server();
+void Send_Server(int facing);
 //客户端发送数据
-void Send_Client(int facing,int xx,int yy);
+void Send_Client(int facing);
