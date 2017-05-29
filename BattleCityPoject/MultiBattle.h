@@ -185,7 +185,6 @@ void EnemyTank_2()
 			enemy2_tank.x = (enemy2_tank.x + 32) / 64 * 64;
 			enemy2_tank.y = (enemy2_tank.y + 32) / 64 * 64;
 		}
-
 	}
 	enemy2_tank.Draw(writeDC, player_tankDC, false);
 }

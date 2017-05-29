@@ -1,5 +1,8 @@
 #include "HEAD.h"
 #include "MultiBattle.h"
+#include"stdio.h"  
+#include"string.h"  
+
 int  WINAPI WinMain(HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine,
@@ -216,7 +219,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						}
 					}
 					else{
-						printf("\n无查询结果!");
+						//printf("\n无查询结果!");
 					}
 					mysql_free_result(resultset);  // 释放结果集  
 				}
@@ -308,6 +311,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//按钮--单人游戏事件
 		if (LOWORD(wParam) == Btn_Single && HIWORD(wParam) == BN_CLICKED)
 		{
+
+			//修改clientORserver为0，表示单人游戏
+			MYSQL mysql;
+			mysql_init(&mysql);
+			if (mysql_real_connect(&mysql, db_host, db_user, db_passwd, db_name, db_port, NULL, 0))
+			{
+				char *buffer = (char*)malloc(sizeof(char) * 128);
+				sprintf(buffer, "UPDATE `battleworld`.`account` SET `cORs`='0'  WHERE `email`='%s';",  username);
+				mysql_query(&mysql, buffer);
+			}
+			mysql_close(&mysql);
+
 			DestroyWindow(hButton_Createroom);
 			DestroyWindow(hButton_Joinroon);
 			hButton_Goon = (HWND)CreateWindow(TEXT("Button"),
@@ -390,6 +405,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//按钮--多人创建房间事件
 		if (LOWORD(wParam) == Btn_Createroom && HIWORD(wParam) == BN_CLICKED)
 		{
+			//获取本机ip
+			WSADATA wsaData;
+			if (WSAStartup(MAKEWORD(2, 2), &wsaData) == SOCKET_ERROR)
+			{
+				exit(0);
+			}
+			int nLen = 256;
+			char hostname[20];
+			gethostname(hostname, nLen);
+			hostent *pHost = gethostbyname(hostname);
+			LPSTR lpAddr = pHost->h_addr_list[0];
+			struct in_addr inAddr;
+			struct in_addr inAddr2;
+			memmove(&inAddr, lpAddr, 4);
+			strcpy(WiredIP, inet_ntoa(inAddr));
+			//printf("有  线  IP地址：%s\n", inet_ntoa(inAddr));
+			memmove(&inAddr2, lpAddr + 4, 4);
+			strcpy(WirelessIP, inet_ntoa(inAddr2));
+			//printf("无  线  IP地址：%s\n", inet_ntoa(inAddr2));
+			//修改clientORserver为1，表示多人对战创建房间者,同时上传本机ip至服务器
+			MYSQL mysql;
+			mysql_init(&mysql);
+			if (mysql_real_connect(&mysql, db_host, db_user, db_passwd, db_name, db_port, NULL, 0))
+			{
+				char *buffer = (char*)malloc(sizeof(char) * 128);
+				sprintf(buffer, "UPDATE `battleworld`.`account` SET `cORs`='1', `WiredIP`='%s', `WirelessIP`='%s' WHERE `email`='%s';", WiredIP,WirelessIP,username);
+				mysql_query(&mysql, buffer);
+			}
+			mysql_close(&mysql);
+			::WSACleanup();
+
 			DestroyWindow(hButton_Single);
 			DestroyWindow(hButton_Goon);
 			DestroyWindow(hButton_Newgame);
@@ -401,12 +447,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			start_flag = true;
 			MapInit();
 			Start_2();
-			
-
 		}
 		//按钮--多人加入房间事件
 		if (LOWORD(wParam) == Btn_Joinroom && HIWORD(wParam) == BN_CLICKED)
-		{
+		{	//查询数据库，获取创建房间者的ip
+			MYSQL mysql;
+			MYSQL_RES *resultset = NULL;
+			MYSQL_ROW row;
+			mysql_init(&mysql);
+			if (mysql_real_connect(&mysql, db_host, db_user, db_passwd, db_name, db_port, NULL, 0))
+			{
+				char *buffer = (char*)malloc(sizeof(char) * 128);
+				//修改cORs 为2，表示加入房间者
+				sprintf(buffer, "UPDATE `battleworld`.`account` SET `cORs`='2'  WHERE `email`='%s';", username);
+				mysql_query(&mysql, buffer);
+				//查询ip
+				mysql_query(&mysql, "SELECT * from account WHERE cORs = '1' ");
+				resultset = mysql_store_result(&mysql);
+				if (mysql_num_rows(resultset) != NULL) {
+					while (row = mysql_fetch_row(resultset))
+					{
+						strcpy(TargetIP, row[7]);
+						strcpy(TargetIP2, row[8]);
+					}
+				}
+				else {
+					MessageBoxA(NULL, "当前无人创建房间", "", MB_OK);
+				}
+				mysql_free_result(resultset);
+			}
+			mysql_close(&mysql);
+
 			DestroyWindow(hButton_Single);
 			DestroyWindow(hButton_Goon);
 			DestroyWindow(hButton_Newgame);
@@ -417,8 +488,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Start_Client();
 			start_flag = true;
 			MapInit();
-			Start_2();
-			
+			Start_2();			
 		}
 		break;
 

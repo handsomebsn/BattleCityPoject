@@ -7,13 +7,15 @@
 #pragma comment(lib, "ws2_32.lib")  
 #define BUF_SIZE  1024
 using namespace std;
+char TargetIP[64];
+char TargetIP2[64];
+
 //服务器端
 SOCKET          sServer;        //服务器套接字  
 SOCKET          sClient;        //客户端套接字 
 int             retVal_server;         //返回值  
 //客户端
 SOCKET sHost; //服务器套接字  
-
 typedef struct send_info
 {
 	int length; //发送的消息主体的长度
@@ -47,7 +49,7 @@ int Start_Client()
 
 	//设置服务器地址  
 	servAddr.sin_family = AF_INET;
-	servAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	servAddr.sin_addr.s_addr = inet_addr(TargetIP);
 	servAddr.sin_port = htons((short)4999);
 	int nServAddlen = sizeof(servAddr);
 	//调用ioctlsocket（）将其设置为非阻塞模式
@@ -59,7 +61,34 @@ int Start_Client()
 		return -1;
 	}
 	while (1) {
-		//连接服务器  
+		//连接服务器ip1  
+		retVal = connect(sHost, (LPSOCKADDR)&servAddr, sizeof(servAddr));
+		if (SOCKET_ERROR == retVal)
+		{/*  阻塞模式
+			MessageBoxA(NULL, "connect failed!", "", MB_OK);
+			closesocket(sHost); //关闭套接字
+			WSACleanup(); //释放套接字资源
+			return -1;*/
+			int err = WSAGetLastError();
+			//无法立即完成非阻塞Socket上的操作
+			if (err == WSAEWOULDBLOCK || err == WSAEINVAL)
+			{
+				Sleep(5); continue;
+			}
+			else if (err == WSAEISCONN)//已建立连接
+			{
+				MessageBoxA(NULL, "进入房间", "", MB_OK); break;
+			}
+			else
+			{
+				//printf("connection failed!\n");
+				closesocket(sHost);
+				WSACleanup();
+				return -1;
+			}
+		}
+		//连接服务器ip2
+		servAddr.sin_addr.s_addr = inet_addr(TargetIP2);
 		retVal = connect(sHost, (LPSOCKADDR)&servAddr, sizeof(servAddr));
 		if (SOCKET_ERROR == retVal)
 		{/*  阻塞模式

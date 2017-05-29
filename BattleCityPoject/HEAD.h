@@ -158,6 +158,10 @@ bool Admit_Login = false;//×¼ÐíµÇÂ¼
 wchar_t *wchar = NULL;
 wchar_t *chr = NULL;
 bool first = true;
+int cORs = 0;
+char WiredIP[64];
+char WirelessIP[64];
+
 void charTowchar(const char *chr, wchar_t *wchar, int size)
 {
 	MultiByteToWideChar(CP_ACP, 0, chr,
