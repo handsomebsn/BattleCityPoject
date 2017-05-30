@@ -7,6 +7,7 @@
 #pragma comment(lib, "ws2_32.lib")  
 #define BUF_SIZE  1024
 #define MOVING 30//对应发送消息的function，表示移动
+#define FIRING 31//同上，表示开火
 using namespace std;
 char TargetIP[64];
 char TargetIP2[64];
@@ -279,7 +280,9 @@ void Receive_Client()
 		case LEFT:Player_B.face = LEFT; break;
 		case RIGHT:Player_B.face = RIGHT; break;
 		}
-		if (info.fire == true) Player_B.fire = true;
+		if (info.fire == true) {
+			Player_B.fire = true;
+		}
 		if (info.fire == false)Player_B.fire = false;
 	}
 }
@@ -293,6 +296,7 @@ void Send_Client(int function,int operation)
 	switch (function)
 	{
 	case MOVING:info.face = operation; break;
+	case FIRING:info.fire = operation; break;
 	}	
 	memcpy(send_buf, &info, sizeof(info)); //(3)结构体转换成字符串
 	send(sHost, send_buf, sizeof(send_buf), 0);//(4)发送信息	
@@ -308,6 +312,7 @@ void Send_Server(int function,int operation)
 	switch (function)
 	{
 	case MOVING:info.face = operation; break;
+	case FIRING:info.fire = operation; break;
 	}
 	memcpy(send_buf, &info, sizeof(info)); //(3)结构体转换成字符串
 	send(sClient, send_buf, sizeof(send_buf), 0);//(4)发送信息	

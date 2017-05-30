@@ -124,7 +124,7 @@ void DrawGame_2()
 	//绘制草块
 	DrawGrass();
 	//处理和绘制敌人炮弹
-	//EnemyBullet_2();
+	EnemyBullet_2();
 	//处理和绘制玩家炮弹
 	PlayerBullet();
 	//处理和绘制开火闪光
@@ -134,13 +134,14 @@ void DrawGame_2()
 	//输出到屏幕
 	Print();
 }
+//处理和绘制敌人坦克
 void EnemyTank_2()
 {
-	
+	Player_B.face = -1;//方向复位
+	//Player_B.fire = false;//开火复位
 	//坦克行走
 	if (enemy2_tank.move == 0)
 	{
-		Player_B.face = -1;//方向复位
 		if (clientORserver == 1)Receive_Server();
 		if (clientORserver == 2)Receive_Client();
 		//行走
@@ -187,9 +188,11 @@ void EnemyTank_2()
 			enemy2_tank.y = (enemy2_tank.y + 32) / 64 * 64;
 		}
 	}
-	//开火
-	if (KEYDOWN(VK_SPACE)) {
-		if (!enemy2_tank.gun_step && enemy2_tank.bullet_num < enemy2_tank.bullet_max)
+	//开火	
+	if (Player_B.fire) {
+		//MessageBoxA(NULL, "TRUE", "", MB_OK); 
+		Player_B.fire = false;
+		//if (!enemy2_tank.gun_step && enemy2_tank.bullet_num < enemy2_tank.bullet_max)
 		{
 			if (sound)PLAYA(SHOOT);
 			int x = enemy2_tank.x + (64 - 40) / 2;
@@ -220,62 +223,33 @@ void EnemyTank_2()
 //处理和绘制敌人炮弹和炮口闪光
 void EnemyBullet_2()
 {
-	list<list<Bullet*>*>::iterator iter_bullet;
-	//处理所有敌方坦克炮弹
-		list<Bullet*>& b = **iter_bullet;
-		for (list<Bullet*>::iterator i = b.begin(); i != b.end();)
+	for (list<Bullet*>::iterator iter_bullet = enemy2_bullet.begin(); iter_bullet != enemy2_bullet.end();)
+	{
+		Bullet& bullet = **iter_bullet;
+		bullet.Move();
+		bool erase_bullet = false;
+		//炮弹是否越界
+		if (bullet.x + 76 - 1 < 0 || bullet.x - 36 > GAME_W - 1 || bullet.y + 76 - 1 < 0 || bullet.y - 36 > GAME_H - 1)
 		{
-			Bullet& bullet = **i;
-			bullet.Move();
-			int x = bullet.x;
-			int y = bullet.y;
-			bool erase = false;
-			//炮弹是否越界
-			if (bullet.x + 76 - 1 < 0 || bullet.x - 36 > GAME_W - 1 || bullet.y + 76 - 1 < 0 || bullet.y - 36 > GAME_H - 1)
-			{
-				delete *i;
-				--enemy2_tank.bullet_num;
-				i = b.erase(i);
-				erase = true;
-			}
-			//击中砖块
-			else if (BulletHitBlock(bullet) == true)
-			{
-				//PLAYA(HIT)
-				fire.push_back(new Fire(bullet.x - (66 - 40) / 2, bullet.y - (66 - 40) / 2));
-				delete *i;
-				--enemy2_tank.bullet_num;
-				i = b.erase(i);
-				erase = true;
-			}
-			//击中玩家
-			else if (player_death == false && BulletHitTank(bullet, player_tank) == true)
-			{
-				fire.push_back(new Fire(bullet.x - (66 - 40) / 2, bullet.y - (66 - 40) / 2));
-				player_tank.life -= bullet.power - player_tank.armor;
-				//玩家颜色改变									
-				if (player_tank.life <= 0)
-				{
-					//玩家死亡
-					if (sound)PLAYA(BOMB);
-					fire.push_back(new Fire(player_tank.x - 1, player_tank.y - 1));
-					player_death = true;
-					--player_num;
-					player_time = player_timemax;
-				}
-				else
-					player_tank.id = player_tank.life / 10 - 1;
-				delete *i;
-				--enemy2_tank.bullet_num;
-				i = b.erase(i);
-				erase = true;
-			}
-			//若炮弹没有爆炸就绘制出来
-			if (erase == false)
-				(*i++)->Draw(writeDC, bulletDC);
+			delete *iter_bullet;
+			--enemy2_tank.bullet_num;
+			iter_bullet = enemy2_bullet.erase(iter_bullet);
+			erase_bullet = true;
 		}
-		//绘制炮口闪光
-		enemy2_tank.Draw(writeDC, player_tankDC, true);	
+		//是否击中砖块
+		else if (BulletHitBlock(bullet) == true)
+		{
+			if (sound)PLAYA(HIT);
+			fire.push_back(new Fire(bullet.x - (66 - 40) / 2, bullet.y - (66 - 40) / 2));
+			delete *iter_bullet;
+			--enemy2_tank.bullet_num;
+			iter_bullet = enemy2_bullet.erase(iter_bullet);
+			erase_bullet = true;
+		}
+		//若炮弹没有爆炸就绘制出来
+		if (erase_bullet == false)
+			(*(iter_bullet++))->Draw(writeDC, bulletDC);
+	}
 }
 
 //按键判断
@@ -346,6 +320,9 @@ void Key_2()
 	if (KEYDOWN(VK_SPACE)) {
 		if (!player_tank.gun_step && player_tank.bullet_num < player_tank.bullet_max)
 		{
+			if (clientORserver == 2)Send_Client(FIRING, TRUE);//发送信号
+			if (clientORserver == 1)Send_Server(FIRING, TRUE);//发送信号
+
 			if (sound)PLAYA(SHOOT);
 			int x = player_tank.x + (64 - 40) / 2;
 			int y = player_tank.y + (64 - 40) / 2;
