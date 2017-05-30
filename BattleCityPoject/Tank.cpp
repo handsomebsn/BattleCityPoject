@@ -880,7 +880,6 @@ void Game()
 //按键判断
 void Key()
 {
-	int temp_face = -1;//临时记录方向
 	//秘籍
 	if (KEYDOWN('Z'))
 	{
@@ -910,26 +909,26 @@ void Key()
 		if (KEYDOWN(VK_DOWN)){
 			player_tank.Change(DOWN);
 			player_tank.move = 64 / player_tank.speed;
-			if(clientORserver==2)Send_Client(DOWN);//发送信号
-			if(clientORserver==1)Send_Server(DOWN);//发送信号
+			if(clientORserver==2)Send_Client(MOVING,DOWN);//发送信号
+			if(clientORserver==1)Send_Server(MOVING,DOWN);//发送信号
 		}
 		else if (KEYDOWN(VK_LEFT))	{
 			player_tank.Change(LEFT);
 			player_tank.move = 64 / player_tank.speed;
-			if (clientORserver == 2)Send_Client(LEFT);//发送信号
-			if (clientORserver == 1)Send_Server(LEFT);//发送信号
+			if (clientORserver == 2)Send_Client(MOVING,LEFT);//发送信号
+			if (clientORserver == 1)Send_Server(MOVING,LEFT);//发送信号
 		}
 		else if (KEYDOWN(VK_UP))	{
 			player_tank.Change(UP);
 			player_tank.move = 64 / player_tank.speed;
-			if (clientORserver == 2)Send_Client(UP);//发送信号
-			if (clientORserver == 1)Send_Server(UP);//发送信号
+			if (clientORserver == 2)Send_Client(MOVING,UP);//发送信号
+			if (clientORserver == 1)Send_Server(MOVING,UP);//发送信号
 		}
 		else if (KEYDOWN(VK_RIGHT))	{
 			player_tank.Change(RIGHT);
 			player_tank.move = 64 / player_tank.speed;
-			if (clientORserver == 2)Send_Client(RIGHT);//发送信号
-			if (clientORserver == 1)Send_Server(RIGHT);//发送信号
+			if (clientORserver == 2)Send_Client(MOVING,RIGHT);//发送信号
+			if (clientORserver == 1)Send_Server(MOVING,RIGHT);//发送信号
 		}
 		if (player_tank.move > 0)
 		{

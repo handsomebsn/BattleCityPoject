@@ -6,6 +6,7 @@
 #include <iostream>  
 #pragma comment(lib, "ws2_32.lib")  
 #define BUF_SIZE  1024
+#define MOVING 30//对应发送消息的function，表示移动
 using namespace std;
 char TargetIP[64];
 char TargetIP2[64];
@@ -24,6 +25,7 @@ typedef struct send_info
 	int face; //朝向
 	int x;//坐标
 	int y;
+	bool fire;
 }send_info;
 send_info Player_B;
 int Start_Client()
@@ -240,6 +242,8 @@ void Receive_Server()
 		case LEFT:Player_B.face = LEFT; break;
 		case RIGHT:Player_B.face = RIGHT; break;
 		}
+		if (info.fire == true) Player_B.fire = true;
+		if (info.fire == false)Player_B.fire = false;		
 	}
 }
 //客户端接收服务器数据  
@@ -275,28 +279,36 @@ void Receive_Client()
 		case LEFT:Player_B.face = LEFT; break;
 		case RIGHT:Player_B.face = RIGHT; break;
 		}
+		if (info.fire == true) Player_B.fire = true;
+		if (info.fire == false)Player_B.fire = false;
 	}
 }
 //客户端发送给服务器
-void Send_Client(int facing)
+void Send_Client(int function,int operation)
 {
 	char send_buf[BUF_SIZE];
 	memset(send_buf, nothing, BUF_SIZE);//清空缓存，不清空的话可能导致接收时产生乱码，
 	send_info info; //(1)定义结构体变量
 	memset(&info, nothing, sizeof(info));//清空结构体
-	info.face = facing;
+	switch (function)
+	{
+	case MOVING:info.face = operation; break;
+	}	
 	memcpy(send_buf, &info, sizeof(info)); //(3)结构体转换成字符串
 	send(sHost, send_buf, sizeof(send_buf), 0);//(4)发送信息	
 }
 //服务器发送给客户端
-void Send_Server(int facing)
+void Send_Server(int function,int operation)
 {
 	//发送数据
 	char send_buf[BUF_SIZE];
 	memset(send_buf, nothing, BUF_SIZE);//清空缓存，不清空的话可能导致接收时产生乱码，	
 	send_info info; //(1)定义结构体变量	
 	memset(&info, nothing, sizeof(info));//清空结构体
-	info.face = facing;
+	switch (function)
+	{
+	case MOVING:info.face = operation; break;
+	}
 	memcpy(send_buf, &info, sizeof(info)); //(3)结构体转换成字符串
 	send(sClient, send_buf, sizeof(send_buf), 0);//(4)发送信息	
 }

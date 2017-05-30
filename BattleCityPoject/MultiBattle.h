@@ -68,19 +68,10 @@ void Init_2()
 	for (list<Fire*>::iterator i = fire.begin(); i != fire.end(); ++i)
 		delete *i;
 	fire.clear();
-	//敌人容器清空
-	for (list<BaseTank*>::iterator i = enemy_tank.begin(); i != enemy_tank.end(); ++i)
-		delete *i;
-	enemy_tank.clear();
 	//敌人炮弹容器清空
-	for (list<list<Bullet*>*>::iterator i = enemy_bullet.begin(); i != enemy_bullet.end(); ++i)
-	{
-		for (list<Bullet*>::iterator j = (**i).begin(); j != (**i).end(); ++j)
-			delete *j;
-		(**i).clear();
+	for (list<Bullet*>::iterator i = enemy2_bullet.begin(); i != enemy2_bullet.end(); ++i)
 		delete *i;
-	}
-	enemy_bullet.clear();
+	enemy2_bullet.clear();
 	//关卡
 	//wintime = 0;
 	//基地
@@ -107,7 +98,7 @@ void Game_2()
 {
 	//玩家操作按键响应
 	if (player_death == false)
-		Key();
+		Key_2();
 	//绘制游戏画面
 	DrawGame_2();
 	//基地毁灭
@@ -133,7 +124,7 @@ void DrawGame_2()
 	//绘制草块
 	DrawGrass();
 	//处理和绘制敌人炮弹
-	//EnemyBullet();
+	//EnemyBullet_2();
 	//处理和绘制玩家炮弹
 	PlayerBullet();
 	//处理和绘制开火闪光
@@ -145,13 +136,14 @@ void DrawGame_2()
 }
 void EnemyTank_2()
 {
+	
 	//坦克行走
 	if (enemy2_tank.move == 0)
 	{
-		//行走
-		Player_B.face = -1;
-		if(clientORserver==1)Receive_Server();
+		Player_B.face = -1;//方向复位
+		if (clientORserver == 1)Receive_Server();
 		if (clientORserver == 2)Receive_Client();
+		//行走
 		switch (Player_B.face)
 		{			
 		case DOWN:enemy2_tank.Change(DOWN);
@@ -173,6 +165,14 @@ void EnemyTank_2()
 				if (++enemy2_tank.move_step > 2)
 					enemy2_tank.move_step = 0;
 			}
+			else {				
+				if (TankHitTank(enemy2_tank,player_tank ) == true)
+				{
+					enemy2_tank.move = 0;
+					if (++enemy2_tank.move_step > 2)
+						enemy2_tank.move_step = 0;
+				}				
+			}
 			if (sound)PLAYB(MOTOR);
 		}
 	}
@@ -187,6 +187,187 @@ void EnemyTank_2()
 			enemy2_tank.y = (enemy2_tank.y + 32) / 64 * 64;
 		}
 	}
+	//开火
+	if (KEYDOWN(VK_SPACE)) {
+		if (!enemy2_tank.gun_step && enemy2_tank.bullet_num < enemy2_tank.bullet_max)
+		{
+			if (sound)PLAYA(SHOOT);
+			int x = enemy2_tank.x + (64 - 40) / 2;
+			int y = enemy2_tank.y + (64 - 40) / 2;
+			switch (enemy2_tank.gun_face)
+			{
+			case DOWN:
+				y += 47;
+				break;
+			case LEFT:
+				x -= 47;
+				break;
+			case UP:
+				y -= 47;
+				break;
+			case RIGHT:
+				x += 47;
+			}
+			enemy2_bullet.push_back(new Bullet(enemy2_tank.bullet_id, 100, enemy2_tank.gun_face, x, y,
+				enemy2_tank.bullet_speed, enemy2_tank.bullet_power));
+			++enemy2_tank.bullet_num;
+			enemy2_tank.Fire();
+		}
+	}
 	enemy2_tank.Draw(writeDC, player_tankDC, false);
+}
+
+//处理和绘制敌人炮弹和炮口闪光
+void EnemyBullet_2()
+{
+	list<list<Bullet*>*>::iterator iter_bullet;
+	//处理所有敌方坦克炮弹
+		list<Bullet*>& b = **iter_bullet;
+		for (list<Bullet*>::iterator i = b.begin(); i != b.end();)
+		{
+			Bullet& bullet = **i;
+			bullet.Move();
+			int x = bullet.x;
+			int y = bullet.y;
+			bool erase = false;
+			//炮弹是否越界
+			if (bullet.x + 76 - 1 < 0 || bullet.x - 36 > GAME_W - 1 || bullet.y + 76 - 1 < 0 || bullet.y - 36 > GAME_H - 1)
+			{
+				delete *i;
+				--enemy2_tank.bullet_num;
+				i = b.erase(i);
+				erase = true;
+			}
+			//击中砖块
+			else if (BulletHitBlock(bullet) == true)
+			{
+				//PLAYA(HIT)
+				fire.push_back(new Fire(bullet.x - (66 - 40) / 2, bullet.y - (66 - 40) / 2));
+				delete *i;
+				--enemy2_tank.bullet_num;
+				i = b.erase(i);
+				erase = true;
+			}
+			//击中玩家
+			else if (player_death == false && BulletHitTank(bullet, player_tank) == true)
+			{
+				fire.push_back(new Fire(bullet.x - (66 - 40) / 2, bullet.y - (66 - 40) / 2));
+				player_tank.life -= bullet.power - player_tank.armor;
+				//玩家颜色改变									
+				if (player_tank.life <= 0)
+				{
+					//玩家死亡
+					if (sound)PLAYA(BOMB);
+					fire.push_back(new Fire(player_tank.x - 1, player_tank.y - 1));
+					player_death = true;
+					--player_num;
+					player_time = player_timemax;
+				}
+				else
+					player_tank.id = player_tank.life / 10 - 1;
+				delete *i;
+				--enemy2_tank.bullet_num;
+				i = b.erase(i);
+				erase = true;
+			}
+			//若炮弹没有爆炸就绘制出来
+			if (erase == false)
+				(*i++)->Draw(writeDC, bulletDC);
+		}
+		//绘制炮口闪光
+		enemy2_tank.Draw(writeDC, player_tankDC, true);	
+}
+
+//按键判断
+void Key_2()
+{
+	//坦克行走
+	if (player_tank.move == 0)
+	{
+		//行走
+		if (KEYDOWN(VK_DOWN)) {
+			player_tank.Change(DOWN);
+			player_tank.move = 64 / player_tank.speed;
+			if (clientORserver == 2)Send_Client(MOVING,DOWN);//发送信号
+			if (clientORserver == 1)Send_Server(MOVING,DOWN);//发送信号
+		}
+		else if (KEYDOWN(VK_LEFT)) {
+			player_tank.Change(LEFT);
+			player_tank.move = 64 / player_tank.speed;
+			if (clientORserver == 2)Send_Client(MOVING,LEFT);//发送信号
+			if (clientORserver == 1)Send_Server(MOVING,LEFT);//发送信号
+		}
+		else if (KEYDOWN(VK_UP)) {
+			player_tank.Change(UP);
+			player_tank.move = 64 / player_tank.speed;
+			if (clientORserver == 2)Send_Client(MOVING,UP);//发送信号
+			if (clientORserver == 1)Send_Server(MOVING,UP);//发送信号
+		}
+		else if (KEYDOWN(VK_RIGHT)) {
+			player_tank.Change(RIGHT);
+			player_tank.move = 64 / player_tank.speed;
+			if (clientORserver == 2)Send_Client(MOVING,RIGHT);//发送信号
+			if (clientORserver == 1)Send_Server(MOVING,RIGHT);//发送信号
+		}
+		if (player_tank.move > 0)
+		{
+			bool hit = TankHitBlock(player_tank);
+			player_tank.move = 64 / player_tank.speed_real;
+			if (hit == true)
+			{
+				player_tank.move = 0;
+				if (++player_tank.move_step > 2)
+					player_tank.move_step = 0;
+			}
+			else {
+				if (TankHitTank(player_tank, enemy2_tank) == true)
+				{
+					player_tank.move = 0;
+					if (++player_tank.move_step > 2)
+						player_tank.move_step = 0;
+				}
+			}			
+			if (sound)PLAYB(MOTOR);
+		}
+	}
+	if (player_tank.move > 0)
+	{
+		--player_tank.move;
+		if (++player_tank.move_step > 2)
+			player_tank.move_step = 0;
+		player_tank.Move();
+		if (player_tank.move == 0) {
+			player_tank.x = (player_tank.x + 32) / 64 * 64;
+			player_tank.y = (player_tank.y + 32) / 64 * 64;
+		}
+
+	}
+	//开火
+	if (KEYDOWN(VK_SPACE)) {
+		if (!player_tank.gun_step && player_tank.bullet_num < player_tank.bullet_max)
+		{
+			if (sound)PLAYA(SHOOT);
+			int x = player_tank.x + (64 - 40) / 2;
+			int y = player_tank.y + (64 - 40) / 2;
+			switch (player_tank.gun_face)
+			{
+			case DOWN:
+				y += 47;
+				break;
+			case LEFT:
+				x -= 47;
+				break;
+			case UP:
+				y -= 47;
+				break;
+			case RIGHT:
+				x += 47;
+			}
+			player_bullet.push_back(new Bullet(player_tank.bullet_id, 100, player_tank.gun_face, x, y,
+				player_tank.bullet_speed, player_tank.bullet_power));
+			++player_tank.bullet_num;
+			player_tank.Fire();
+		}
+	}
 }
 #endif

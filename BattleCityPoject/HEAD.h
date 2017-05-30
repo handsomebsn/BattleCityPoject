@@ -62,6 +62,8 @@ BaseTank player_tank;
 BaseTank enemy2_tank;
 //玩家子弹
 list<Bullet*> player_bullet;
+//多人-敌人子弹
+list<Bullet*> enemy2_bullet;
 //火花容器
 list<Fire*> fire;
 //敌人容器

@@ -79,6 +79,7 @@ void Game();
 void Game_2();
 //按键判断
 void Key();
+void Key_2();
 //画背景
 void DrawBG();
 //画游戏
@@ -112,6 +113,7 @@ void EnemyTank();
 void EnemyTank_2();
 //处理和画敌人子弹
 void EnemyBullet();
+void EnemyBullet_2();
 //处理和画道具
 void Item();
 //地图编辑
@@ -132,6 +134,6 @@ void Receive_Server();
 //客户端接收数据
 void Receive_Client();
 //服务器端发送数据
-void Send_Server(int facing);
+void Send_Server(int function,int operation);
 //客户端发送数据
-void Send_Client(int facing);
+void Send_Client(int function,int operation);
