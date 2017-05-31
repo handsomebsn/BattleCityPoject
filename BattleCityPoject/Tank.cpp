@@ -636,8 +636,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					game_state = GAME;
 					break;
 				case GAMEOVER:
-					MessageBox(hwnd, L"游戏结束！再接再厉！", L"", MB_OK);
-					PostQuitMessage(0);
+					switch (clientORserver)
+					{
+					case 0:MessageBox(hwnd, L"游戏结束！再接再厉！", L"", MB_OK);
+						PostQuitMessage(0);
+						break;
+					case 1:
+					case 2:MessageBox(hwnd, L"失败！", L"", MB_OK); Start_2();
+						break;
+					}
 					break;
 				case NEXTSTAGE:
 					if (++stage == stage_max)
@@ -649,8 +656,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					break;
 				case WIN:
-					MessageBox(hwnd, L"太厉害了，祝贺通关！", L"", MB_OK);
-					Start();
+					
+					switch (clientORserver)
+					{
+					case 0: MessageBox(hwnd, L"太厉害了，祝贺通关！", L"", MB_OK);Start();break;
+					case 1: MessageBox(hwnd, L"胜利！", L"", MB_OK);Start_2();break;
+					case 2: MessageBox(hwnd, L"胜利！", L"", MB_OK); Start_2();break;
+					}
+					
 					break;
 				}
 			}

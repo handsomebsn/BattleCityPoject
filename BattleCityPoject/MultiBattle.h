@@ -126,7 +126,7 @@ void DrawGame_2()
 	//处理和绘制敌人炮弹
 	EnemyBullet_2();
 	//处理和绘制玩家炮弹
-	PlayerBullet();
+	PlayerBullet_2();
 	//处理和绘制开火闪光
 	player_tank.Draw(writeDC, player_tankDC, true);
 	//绘制火花
@@ -251,7 +251,49 @@ void EnemyBullet_2()
 			(*(iter_bullet++))->Draw(writeDC, bulletDC);
 	}
 }
-
+//处理玩家炮弹
+void PlayerBullet_2()
+{
+	for (list<Bullet*>::iterator iter_bullet = player_bullet.begin(); iter_bullet != player_bullet.end();)
+	{
+		Bullet& bullet = **iter_bullet;
+		bullet.Move();
+		bool erase_bullet = false;
+		//炮弹是否越界
+		if (bullet.x + 76 - 1 < 0 || bullet.x - 36 > GAME_W - 1 || bullet.y + 76 - 1 < 0 || bullet.y - 36 > GAME_H - 1)
+		{
+			delete *iter_bullet;
+			--player_tank.bullet_num;
+			iter_bullet = player_bullet.erase(iter_bullet);
+			erase_bullet = true;
+		}
+		//是否击中砖块
+		else if (BulletHitBlock(bullet) == true)
+		{
+			if (sound)PLAYA(HIT);
+			fire.push_back(new Fire(bullet.x - (66 - 40) / 2, bullet.y - (66 - 40) / 2));
+			//是否打中敌方基地
+			if (clientORserver == 1) {
+				if (((bullet.x + 20) / 64 == 7) && ((bullet.y + 20) / 64 == 0))
+					game_state = WIN;
+			}
+			else if (clientORserver == 2) {
+				if (((bullet.x + 20) / 64 == 7) && ((bullet.y + 20) / 64 == 10))
+					game_state = WIN;
+			}
+			delete *iter_bullet;
+			--player_tank.bullet_num;
+			iter_bullet = player_bullet.erase(iter_bullet);
+			erase_bullet = true;
+		}
+		else {
+			
+		}
+		//若炮弹没有爆炸就绘制出来
+		if (erase_bullet == false)
+			(*(iter_bullet++))->Draw(writeDC, bulletDC);
+	}
+}
 //按键判断
 void Key_2()
 {

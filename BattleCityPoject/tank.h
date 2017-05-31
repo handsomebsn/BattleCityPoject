@@ -91,6 +91,7 @@ void Print();
 void DrawBlock();
 //处理和画玩家子弹
 void PlayerBullet();
+void PlayerBullet_2();
 //画草
 void DrawGrass();
 //画爆炸火花

@@ -83,7 +83,7 @@ int stage;
 const int stage_max = map_max;
 //基地
 int base_time;
-const int base_timemax = 100;
+const int base_timemax = 50;//作用相当于delay
 //玩家生命数
 bool player_death = false;
 const int player_max = 3;
