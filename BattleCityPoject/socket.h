@@ -8,6 +8,7 @@
 #define BUF_SIZE  1024
 #define MOVING 30//对应发送消息的function，表示移动
 #define FIRING 31//同上，表示开火
+bool Enterroom = true;
 using namespace std;
 char TargetIP[64];
 char TargetIP2[64];
@@ -81,14 +82,15 @@ int Start_Client()
 			}
 			else if (err == WSAEISCONN)//已建立连接
 			{
-				MessageBoxA(NULL, "进入房间", "", MB_OK); break;
+				MessageBoxA(NULL, "进入房间", "", MB_OK); Enterroom = true;break;
 			}
 			else
 			{
 				//printf("connection failed!\n");
-				closesocket(sHost);
-				WSACleanup();
-				return -1;
+				//closesocket(sHost);
+				//WSACleanup();
+				//return -1;
+				Enterroom = false;
 			}
 		}
 		//连接服务器ip2
@@ -108,17 +110,21 @@ int Start_Client()
 			}
 			else if (err == WSAEISCONN)//已建立连接
 			{
-				MessageBoxA(NULL, "进入房间", "", MB_OK); break;
+				MessageBoxA(NULL, "进入房间", "", MB_OK);
+				Enterroom = true;
+				break;
 			}
 			else
 			{
 				//printf("connection failed!\n");
-				closesocket(sHost);
-				WSACleanup();
-				return -1;
+				//closesocket(sHost);
+				//WSACleanup();
+				//return -1;
+				Enterroom = false;
 			}
 		}
 	}
+	if(Enterroom==false)MessageBoxA(NULL, "进入房间失败", "", MB_OK);
 	return 0;
 }
 int Start_Server() {
