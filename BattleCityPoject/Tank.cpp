@@ -204,12 +204,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					MessageBox(NULL, L"数据库查询发生错误", L"", NULL);
 				}
-				else{
+				else {
 					resultset = mysql_store_result(&mysql);// 获得结果集
-					if (mysql_num_rows(resultset) != NULL){
-						while (row = mysql_fetch_row(resultset)){
-							if (strcmp(row[1], username) == 0){
-								if (strcmp(row[2], passwd) == 0){
+					if (mysql_num_rows(resultset) != NULL) {
+						while (row = mysql_fetch_row(resultset)) {
+							if (strcmp(row[1], username) == 0) {
+								if (strcmp(row[2], passwd) == 0) {
 									Admit_Login = true;
 									stage = atoi(row[4]) - 1;
 									grade_db = atoi(row[5]);
@@ -218,7 +218,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							}
 						}
 					}
-					else{
+					else {
 						//printf("\n无查询结果!");
 					}
 					mysql_free_result(resultset);  // 释放结果集  
@@ -274,7 +274,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					MessageBox(NULL, L"    账号密码有误", L"登录错误", MB_OK);
 				}
 			}
-			else{
+			else {
 				MessageBox(NULL, L"与服务器断开连接!", L"连接失败", MB_OK);
 			}
 			mysql_close(&mysql);
@@ -282,7 +282,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//按钮--音效事件
 		if (LOWORD(wParam) == Btn_Music && HIWORD(wParam) == BN_CLICKED)
 		{
-			if (sound){
+			if (sound) {
 				sound = false; PlaySound(NULL, NULL, SND_FILENAME);
 				SetWindowText(hButton_Music, L"音效：关");
 			}
@@ -292,19 +292,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 		//按钮--制作人员事件
-		if (LOWORD(wParam) == Btn_MakePeople && HIWORD(wParam) == BN_CLICKED){
+		if (LOWORD(wParam) == Btn_MakePeople && HIWORD(wParam) == BN_CLICKED) {
 			MessageBox(hwnd, L"      Cc、橙汁", L"制作人员", MB_OK);
 		}
 		//按钮--服务条款事件
-		if (LOWORD(wParam) == Btn_Service && HIWORD(wParam) == BN_CLICKED){
+		if (LOWORD(wParam) == Btn_Service && HIWORD(wParam) == BN_CLICKED) {
 			MessageBox(hwnd, L"本站部分内容均来自互联网,仅作学习之用.", L"服务条款", MB_OK);
 		}
 		//按钮--官方网站事件
-		if (LOWORD(wParam) == Btn_Web && HIWORD(wParam) == BN_CLICKED){
+		if (LOWORD(wParam) == Btn_Web && HIWORD(wParam) == BN_CLICKED) {
 			ShellExecute(NULL, _T("open"), _T("explorer.exe"), _T("http://www.baidu.com"), NULL, SW_SHOW);
 		}
 		//按钮--退出游戏事件
-		if (LOWORD(wParam) == Btn_Quit && HIWORD(wParam) == BN_CLICKED){
+		if (LOWORD(wParam) == Btn_Quit && HIWORD(wParam) == BN_CLICKED) {
 			MessageBox(hwnd, L"感谢使用！再见！", L"", MB_OK);
 			PostQuitMessage(0);
 		}
@@ -318,7 +318,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (mysql_real_connect(&mysql, db_host, db_user, db_passwd, db_name, db_port, NULL, 0))
 			{
 				char *buffer = (char*)malloc(sizeof(char) * 128);
-				sprintf(buffer, "UPDATE `battleworld`.`account` SET `cORs`='0'  WHERE `email`='%s';",  username);
+				sprintf(buffer, "UPDATE `battleworld`.`account` SET `cORs`='0'  WHERE `email`='%s';", username);
 				mysql_query(&mysql, buffer);
 			}
 			mysql_close(&mysql);
@@ -430,7 +430,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (mysql_real_connect(&mysql, db_host, db_user, db_passwd, db_name, db_port, NULL, 0))
 			{
 				char *buffer = (char*)malloc(sizeof(char) * 128);
-				sprintf(buffer, "UPDATE `battleworld`.`account` SET `cORs`='1', `WiredIP`='%s', `WirelessIP`='%s' WHERE `email`='%s';", WiredIP,WirelessIP,username);
+				sprintf(buffer, "UPDATE `battleworld`.`account` SET `cORs`='1', `WiredIP`='%s', `WirelessIP`='%s' WHERE `email`='%s';", WiredIP, WirelessIP, username);
 				mysql_query(&mysql, buffer);
 			}
 			mysql_close(&mysql);
@@ -488,7 +488,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Start_Client();
 			start_flag = true;
 			MapInit();
-			Start_2();			
+			Start_2();
 		}
 		break;
 
@@ -583,7 +583,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				L"    F2键载入自制地图并编辑",
 				L"    F3键保存地图",
 			};
-			for (int i = 0; i < 19; ++i){
+			for (int i = 0; i < 19; ++i) {
 				TextOut(hdc, GAME_W + 10, (i + 1) * 22, Game_Guide[i], (int)(_tcsclen(Game_Guide[i])));
 			}
 			EndPaint(hWnd, &ps);
@@ -624,7 +624,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				case GAME:
 					if (clientORserver == 0)
 						Game();
-					else{
+					else {
 						Game_2();
 					}
 					break;
@@ -656,14 +656,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					break;
 				case WIN:
-					
+
 					switch (clientORserver)
 					{
-					case 0: MessageBox(hwnd, L"太厉害了，祝贺通关！", L"", MB_OK);Start();break;
-					case 1: MessageBox(hwnd, L"胜利！", L"", MB_OK);Start_2();break;
-					case 2: MessageBox(hwnd, L"胜利！", L"", MB_OK); Start_2();break;
+					case 0: MessageBox(hwnd, L"太厉害了，祝贺通关！", L"", MB_OK); Start(); break;
+					case 1: MessageBox(hwnd, L"胜利！", L"", MB_OK); Start_2(); break;
+					case 2: MessageBox(hwnd, L"胜利！", L"", MB_OK); Start_2(); break;
 					}
-					
+
 					break;
 				}
 			}
@@ -768,10 +768,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					if (j <= 10)
 					{
-						strcat(rank, sort[j]);strcat(rank, "\t");
-						strcat(rank, row[3]);strcat(rank, "\t");
-						strcat(rank, row[4]);strcat(rank, "\t");
-						strcat(rank, row[5]);strcat(rank, "\n");
+						strcat(rank, sort[j]); strcat(rank, "\t");
+						strcat(rank, row[3]); strcat(rank, "\t");
+						strcat(rank, row[4]); strcat(rank, "\t");
+						strcat(rank, row[5]); strcat(rank, "\n");
 						++j;
 					}
 					else
@@ -832,12 +832,12 @@ void Game()
 	else
 		DrawGame_2();
 	//基地毁灭
-	if (base_time > 0){
+	if (base_time > 0) {
 		if (--base_time == 0)
 			game_state = GAMEOVER;
 	}
 	//过关
-	if (wintime > 0){
+	if (wintime > 0) {
 		if (--wintime == 0)
 			game_state = NEXTSTAGE;
 	}
@@ -848,7 +848,7 @@ void Game()
 		{
 			if (player_num == 0)
 				game_state = GAMEOVER;
-			else{
+			else {
 				//玩家复活
 				player_death = false;
 				player_tank = BaseTank(20 / 10 - 1, 20, 0, UP, 5 * 64, 10 * 64 + 64, UP, false, 16, 4, 8, 2, 1, 10, 8);
@@ -896,17 +896,17 @@ void Key()
 	//秘籍
 	if (KEYDOWN('Z'))
 	{
-		if (KEYDOWN(VK_UP))	{
+		if (KEYDOWN(VK_UP)) {
 			if (stage > 0)
 				--stage;
 			Init();
 		}
-		else if (KEYDOWN(VK_DOWN))	{
+		else if (KEYDOWN(VK_DOWN)) {
 			if (stage < stage_max - 1)
 				++stage;
 			Init();
 		}
-		else if (KEYDOWN('F'))	{
+		else if (KEYDOWN('F')) {
 			player_tank.life = 40;
 			player_tank.id = player_tank.life / 10 - 1;
 			player_tank.speed = 8;
@@ -917,31 +917,31 @@ void Key()
 	}
 	//坦克行走
 	else if (player_tank.move == 0)
-	{		
+	{
 		//行走
-		if (KEYDOWN(VK_DOWN)){
+		if (KEYDOWN(VK_DOWN)) {
 			player_tank.Change(DOWN);
 			player_tank.move = 64 / player_tank.speed;
-			if(clientORserver==2)Send_Client(MOVING,DOWN);//发送信号
-			if(clientORserver==1)Send_Server(MOVING,DOWN);//发送信号
+			if (clientORserver == 2)Send_Client(MOVING, DOWN);//发送信号
+			if (clientORserver == 1)Send_Server(MOVING, DOWN);//发送信号
 		}
-		else if (KEYDOWN(VK_LEFT))	{
+		else if (KEYDOWN(VK_LEFT)) {
 			player_tank.Change(LEFT);
 			player_tank.move = 64 / player_tank.speed;
-			if (clientORserver == 2)Send_Client(MOVING,LEFT);//发送信号
-			if (clientORserver == 1)Send_Server(MOVING,LEFT);//发送信号
+			if (clientORserver == 2)Send_Client(MOVING, LEFT);//发送信号
+			if (clientORserver == 1)Send_Server(MOVING, LEFT);//发送信号
 		}
-		else if (KEYDOWN(VK_UP))	{
+		else if (KEYDOWN(VK_UP)) {
 			player_tank.Change(UP);
 			player_tank.move = 64 / player_tank.speed;
-			if (clientORserver == 2)Send_Client(MOVING,UP);//发送信号
-			if (clientORserver == 1)Send_Server(MOVING,UP);//发送信号
+			if (clientORserver == 2)Send_Client(MOVING, UP);//发送信号
+			if (clientORserver == 1)Send_Server(MOVING, UP);//发送信号
 		}
-		else if (KEYDOWN(VK_RIGHT))	{
+		else if (KEYDOWN(VK_RIGHT)) {
 			player_tank.Change(RIGHT);
 			player_tank.move = 64 / player_tank.speed;
-			if (clientORserver == 2)Send_Client(MOVING,RIGHT);//发送信号
-			if (clientORserver == 1)Send_Server(MOVING,RIGHT);//发送信号
+			if (clientORserver == 2)Send_Client(MOVING, RIGHT);//发送信号
+			if (clientORserver == 1)Send_Server(MOVING, RIGHT);//发送信号
 		}
 		if (player_tank.move > 0)
 		{
@@ -953,7 +953,7 @@ void Key()
 				if (++player_tank.move_step > 2)
 					player_tank.move_step = 0;
 			}
-			else	{
+			else {
 				for (list<BaseTank*>::iterator iter = enemy_tank.begin(); iter != enemy_tank.end(); ++iter)
 				{
 					BaseTank& tank = **iter;
@@ -975,32 +975,32 @@ void Key()
 		if (++player_tank.move_step > 2)
 			player_tank.move_step = 0;
 		player_tank.Move();
-		if (player_tank.move == 0)	{
+		if (player_tank.move == 0) {
 			player_tank.x = (player_tank.x + 32) / 64 * 64;
 			player_tank.y = (player_tank.y + 32) / 64 * 64;
 		}
-		
+
 	}
 	//转动炮台
-	if (KEYDOWN('S')){
+	if (KEYDOWN('S')) {
 		if (sound)PLAYB(TURRET);
 		player_tank.gun_face = DOWN;
 	}
-	else if (KEYDOWN('A'))	{
+	else if (KEYDOWN('A')) {
 		if (sound)PLAYB(TURRET);
 		player_tank.gun_face = LEFT;
 	}
-	else if (KEYDOWN('W'))	{
+	else if (KEYDOWN('W')) {
 		if (sound)PLAYB(TURRET);
 		player_tank.gun_face = UP;
 	}
-	else if (KEYDOWN('D'))	{
+	else if (KEYDOWN('D')) {
 		if (sound)PLAYB(TURRET);
 		player_tank.gun_face = RIGHT;
 	}
 
 	//锁定炮台
-	if (keyup_L == true && KEYDOWN('L'))	{
+	if (keyup_L == true && KEYDOWN('L')) {
 		keyup_L = false;
 		if (player_tank.gun_lock == false)player_tank.gun_lock = true;
 		else player_tank.gun_lock = false;
@@ -1036,12 +1036,12 @@ void Key()
 }
 
 //画背景
-void DrawBG(){
+void DrawBG() {
 	BitBlt(writeDC, 0, 0, GAME_W, GAME_H, backgroundDC, 0, 0, SRCCOPY);
 }
 
 //输出缓冲区到屏幕
-void Print(){
+void Print() {
 	BitBlt(winDC, 0, 0, GAME_W, GAME_H, writeDC, 0, 0, SRCCOPY);
 }
 
@@ -1078,7 +1078,7 @@ void Init()
 {
 	//显示关卡
 	char s[100];
-	if (game_state == GAME)	{
+	if (game_state == GAME) {
 		sprintf(s, "准备进入第%d关", stage + 1);
 		if (sound)PLAYA(START);
 	}
@@ -1171,17 +1171,17 @@ void DrawBlock()
 		int &id = *iter;
 		if (id == GRASS || (id == FLOOR && boss_mode == false))continue;
 		//砖块循环
-		if (wall_time == wall_timemax && id >= wall_min && id <= wall_max)	{
+		if (wall_time == wall_timemax && id >= wall_min && id <= wall_max) {
 			if (++id > wall_max)id = wall_min;
 		}
-		else if (wall_time == wall_timemax && id >= wall1_min && id <= wall1_max)	{
+		else if (wall_time == wall_timemax && id >= wall1_min && id <= wall1_max) {
 			if (--id == wall1_min)id = wall_min;
 		}
 		//水块循环
-		else if (water_time == water_timemax && id >= water_min && id <= water_max)	{
+		else if (water_time == water_timemax && id >= water_min && id <= water_max) {
 			if (++id >= water_max)id = water1_max;
 		}
-		else if (water_time == water_timemax && id >= water1_min && id <= water1_max)	{
+		else if (water_time == water_timemax && id >= water1_min && id <= water1_max) {
 			if (--id == water1_min)id = water_min;
 		}
 		//不等于雪块和草块就进行绘制
@@ -1222,7 +1222,7 @@ void PlayerBullet()
 			iter_bullet = player_bullet.erase(iter_bullet);
 			erase_bullet = true;
 		}
-		else{
+		else {
 			list<BaseTank*>::iterator iter_tank;
 			list<list<Bullet*>*>::iterator iter_enemy_bullet;
 			//是否击中敌人
@@ -1303,7 +1303,7 @@ void PlayerBullet()
 					break;
 				}
 				//是否击中敌人炮弹
-				else{
+				else {
 					for (list<Bullet*>::iterator i = b.begin(); i != b.end(); ++i)
 					{
 						Bullet& bullet1 = **i;
@@ -1718,21 +1718,21 @@ void Item()
 			{
 				//坦克生命
 			case LIFE:
-				if (player_tank.life < max_life){
+				if (player_tank.life < max_life) {
 					player_tank.life += 10;
 					player_tank.id = player_tank.life / 10 - 1;
 				}
 				break;
 				//子弹射速
 			case POWER:
-				if (player_tank.bullet_speed < max_bullet_speed){
+				if (player_tank.bullet_speed < max_bullet_speed) {
 					player_tank.fire_speed += 2;
 					player_tank.bullet_speed += 4;
 				}
 				break;
 				//坦克速度
 			case SPEED:
-				if (player_tank.speed < max_speed){
+				if (player_tank.speed < max_speed) {
 					player_tank.speed += 1;
 				}
 				break;
@@ -1758,11 +1758,11 @@ void Edit()
 	//输出画面
 	Print();
 	//编辑按键判断
-	if (KEYDOWN(VK_LBUTTON)){
+	if (KEYDOWN(VK_LBUTTON)) {
 		blockmap[stage*block_wide*block_high + mouse_y / 64 * block_wide + mouse_x / 64] = mouse_id;
 		block[mouse_y / 64 * block_wide + mouse_x / 64] = mouse_id;
 	}
-	else if (KEYDOWN(VK_RBUTTON)){
+	else if (KEYDOWN(VK_RBUTTON)) {
 		blockmap[stage*block_wide*block_high + mouse_y / 64 * block_wide + mouse_x / 64] = FLOOR;
 		block[mouse_y / 64 * block_wide + mouse_x / 64] = FLOOR;
 	}
@@ -1785,10 +1785,10 @@ void Edit()
 void Save()
 {
 	map_file.open(map_name, fstream::out);
-	if (!map_file){
+	if (!map_file) {
 		MessageBox(hwnd, L"地图保存失败！", L"错误", MB_OK | MB_ICONWARNING);
 	}
-	else{
+	else {
 		for (vector<int>::iterator i = blockmap.begin(); i != blockmap.end(); ++i)
 		{
 			map_file << *i;
@@ -1816,7 +1816,7 @@ void Load()
 	{
 		MessageBox(hwnd, L"载入地图失败！", L"错误", MB_OK | MB_ICONWARNING);
 	}
-	else{
+	else {
 		string s;
 		for (vector<int>::iterator i = blockmap.begin(); i != blockmap.end(); ++i)
 		{
@@ -1829,12 +1829,12 @@ void Load()
 	map_file.close();
 }
 //载入预置地图
-void LoadMap(){
+void LoadMap() {
 	block.assign(blockmap.begin() + block_wide*block_high*stage,
 		blockmap.begin() + block_wide*block_high*stage + block_wide*block_high);
 }
 //全地图初始化
-void MapInit(){
+void MapInit() {
 	if (clientORserver == 0) {
 		blockmap.assign(map, map + block_wide*block_high*map_max);
 	}
